@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="rc">
+      <UniqueIdentifier>{4f345c08-4a24-40a8-956e-f6b407156cc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared">
+      <UniqueIdentifier>{aa84803d-6fe6-4fcd-891d-e5ea37b10cc0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\shared\auxtools.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\dbg.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\mhandles.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\shared\winliblt.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\openssl_helpers.cpp" />
+    <ClCompile Include="..\viewer.cpp" />
+    <ClCompile Include="..\certview.cpp" />
+    <ClCompile Include="..\dialogs.cpp" />
+    <ClCompile Include="..\precomp.cpp" />
+    <ClCompile Include="..\certdump.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\shared\auxtools.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\dbg.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\mhandles.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\spl_base.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\spl_com.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\spl_gen.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\spl_gui.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\spl_menu.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\spl_thum.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\spl_vers.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\spl_view.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\shared\winliblt.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\viewer.h" />
+    <ClInclude Include="..\openssl_helpers.h" />
+    <ClInclude Include="..\precomp.h" />
+    <ClInclude Include="..\certview.h" />
+    <ClInclude Include="..\dialogs.h" />
+    <ClInclude Include="..\certdump.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\certview.def">
+      <Filter>rc</Filter>
+    </None>
+    <None Include="..\certview.rc2">
+      <Filter>rc</Filter>
+    </None>
+    <None Include="..\certview.rh">
+      <Filter>rc</Filter>
+    </None>
+    <None Include="..\certview.rh2">
+      <Filter>rc</Filter>
+    </None>
+    <None Include="..\lang\lang.rh">
+      <Filter>rc</Filter>
+    </None>
+    <None Include="..\versinfo.rh2">
+      <Filter>rc</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\certview.rc">
+      <Filter>rc</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
