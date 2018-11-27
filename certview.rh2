@@ -36,8 +36,6 @@
 
 #define IDH_VIEWBMPFROMCLIP      900
 
-#define IDB_PLUGINICO            1000
-
 #define CML_VIEWER_FILES         1500
 #define CM_VIEWER_OPEN           1501
 #define CM_VIEWER_EXIT           1502

@@ -231,15 +231,8 @@ CPluginInterface::Connect(HWND parent, CSalamanderConnectAbstract *salamander)
 {
 	CALL_STACK_MESSAGE1("CPluginInterface::Connect(,)");
 
-	// zakladni cast:
+	// supported file extensions:
 	salamander->AddViewer("*.pem;*.key;*.crl;*.csr;*.cer;*.crt;*.der;*.pub;*.p7b;*.p8;*.pk8;*.p12", FALSE);
-
-	HBITMAP hBmp = (HBITMAP)HANDLES(LoadImage(DLLInstance, MAKEINTRESOURCE(IDB_PLUGINICO),
-									IMAGE_BITMAP, 16, 16, LR_DEFAULTCOLOR));
-	salamander->SetBitmapWithIcons(hBmp);
-	HANDLES(DeleteObject(hBmp));
-	salamander->SetPluginIcon(0);
-//	salamander->SetPluginMenuAndToolbarIcon(0);
 }
 
 void WINAPI

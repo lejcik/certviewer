@@ -24,5 +24,3 @@
 
 #include "versinfo.rh2"
 #include "versinfo.rc2"
-
-IDB_PLUGINICO BITMAP "res\\plugico.bmp"
