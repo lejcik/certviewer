@@ -7,7 +7,7 @@ that parse and dump information from certificate files. Moreover, it does automa
 
 ## Building the plugin
 
-To get started, download and install the [Altap Salamander SDK](https://www.altap.cz/salamander/downloads/sdk/). This project was developed with latest version **3.8**, here is the direct link to the [archive](ftp://ftp.altap.cz/pub/altap/salamand/as308sdk.7z) with the SDK. Unpack the archive into your project directory. Project file is preconfigured to use the Altap Salamander SDK, so it has to be cloned into path: `as308sdk\salamand\plugins\certviewer`.
+To get started, download and install the [Altap Salamander SDK](https://www.altap.cz/salamander/downloads/sdk/). This project was developed with the latest version **3.8** (ftp://ftp.altap.cz/pub/altap/salamand/as308sdk.7z). Download and unpack the archive with SDK into your project directory. Project file is preconfigured to use the Altap Salamander SDK, so it has to be cloned into path: `as308sdk\salamand\plugins\certviewer`.
 
 Project depends also on the [OpenSSL](http://openssl.org) library, it was depeloped and tested with version **1.0.2p**. Porting it to a never version should be smooth. Poject is preconfigured to use [vcpkg](https://github.com/Microsoft/vcpkg) utility, which automates installation of 3rd party libraries, and Visual Studio can then automatically detect and use the installed libraries.
 

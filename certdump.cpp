@@ -25,7 +25,7 @@ BOOL errHandler(BIO *out)
 	}
 
 	return TRUE;
-};
+}
 
 BOOL ParseObjectType(BIO *bio_in, char *buf, size_t buflen)
 {
