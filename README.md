@@ -56,6 +56,7 @@ This is my first project where I used the *OpenSSL* library. I don't feel as a s
 * Resolve TODOs in the code.
 * Improve certificate file format detection. Current way is not optimal, but for a viewer it should be ok.
 * Support viewing password-protected certificates.
+* Unicode support.
 
 ## License
 
