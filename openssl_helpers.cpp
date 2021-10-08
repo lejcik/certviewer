@@ -18,7 +18,6 @@
 #include <openssl/err.h>
 #include <openssl/buffer.h>
 #include <openssl/pkcs12.h>
-#include <openssl/asn1_mac.h>
 
 // prints out a separator between certificates
 void PrintSeparator(BIO *bio_out)
@@ -36,11 +35,14 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 	BUF_MEM *b;
 	unsigned char *p;
 	int i;
-	ASN1_const_CTX c;
 	size_t want = HEADER_SIZE;
-	int eos = 0;
+	uint32_t eos = 0;
 	size_t off = 0;
 	size_t len = 0;
+
+	const unsigned char *q;
+	long slen;
+	int inf, tag, xclass;
 
 	b = BUF_MEM_new();
 	if (b == NULL) {
@@ -73,10 +75,9 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 		/* else data already loaded */
 
 		p = (unsigned char *)&(b->data[off]);
-		c.p = p;
-		c.inf = ASN1_get_object(&(c.p), &(c.slen), &(c.tag), &(c.xclass),
-								len - off);
-		if (c.inf & 0x80) {
+		q = p;
+		inf = ASN1_get_object(&q, &slen, &tag, &xclass, len - off);
+		if (inf & 0x80) {
 			unsigned long e;
 
 			e = ERR_GET_REASON(ERR_peek_error());
@@ -85,27 +86,27 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 			else
 				ERR_clear_error(); /* clear error */
 		}
-		i = c.p - p;            /* header length */
+		i = q - p;            /* header length */
 		off += i;               /* end of data */
 
-		if (c.inf & 1) {
+		if (inf & 1) {
 			/* no data body so go round again */
-			eos++;
-			if (eos < 0) {
+			if (eos == UINT32_MAX) {
 				ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_HEADER_TOO_LONG);
 				goto err;
 			}
+			eos++;
 			want = HEADER_SIZE;
-		} else if (eos && (c.slen == 0) && (c.tag == V_ASN1_EOC)) {
+		} else if (eos && (slen == 0) && (tag == V_ASN1_EOC)) {
 			/* eos value, so go back and read another header */
 			eos--;
-			if (eos <= 0)
+			if (eos == 0)
 				break;
 			else
 				want = HEADER_SIZE;
 		} else {
-			/* suck in c.slen bytes of data */
-			want = c.slen;
+			/* suck in slen bytes of data */
+			want = slen;
 			if (want > (len - off)) {
 				size_t chunk_max = ASN1_CHUNK_INITIAL_SIZE;
 
@@ -147,12 +148,12 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 						chunk_max *= 2;
 				}
 			}
-			if (off + c.slen < off) {
+			if (off + slen < off) {
 				ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_TOO_LONG);
 				goto err;
 			}
-			off += c.slen;
-			if (eos <= 0) {
+			off += slen;
+			if (eos == 0) {
 				break;
 			} else
 				want = HEADER_SIZE;
@@ -167,8 +168,7 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 	*pb = b;
 	return off;
  err:
-	if (b != NULL)
-		BUF_MEM_free(b);
+	BUF_MEM_free(b);
 	return -1;
 }
 
