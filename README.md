@@ -7,9 +7,11 @@ that parse and dump information from certificate files. Moreover, it does automa
 
 ## Building the plugin
 
-To get started, download and install the [Altap Salamander SDK](https://www.altap.cz/salamander/downloads/sdk/). This project was developed with the latest version **3.8** (ftp://ftp.altap.cz/pub/altap/salamand/as308sdk.7z). Download and unpack the archive with SDK into your project directory. Project file is preconfigured to use the Altap Salamander SDK, so it has to be cloned into path: `as308sdk\salamand\plugins\certviewer`.
+To get started, download and install the [Altap Salamander SDK](https://www.altap.cz/salamander/downloads/sdk/). This project was developed with the latest version **4.0**, which was not yet officially published. However, there's an unofficiall SDK available here: https://github.com/lejcik/as-sdk4-unofficial
 
-Project depends also on the [OpenSSL](http://openssl.org) library, it was depeloped and tested with version **1.0.2p**. Porting it to a never version should be smooth. Poject is preconfigured to use [vcpkg](https://github.com/Microsoft/vcpkg) utility, which automates installation of 3rd party libraries, and Visual Studio can then automatically detect and use the installed libraries.
+Download and unpack the archive with SDK into your project directory. Project file is preconfigured to use the Altap Salamander SDK, so it has to be cloned into path: `salamand\plugins\certviewer`.
+
+Project depends also on the [OpenSSL](http://openssl.org) library, it was depeloped and tested with version **1.1.1l**. Porting it to a never version should be smooth. Poject is preconfigured to use [vcpkg](https://github.com/Microsoft/vcpkg) utility, which automates installation of 3rd party libraries, and Visual Studio can then automatically detect and use the installed libraries.
 
 Clone the `vcpkg` repository into your project directory.
 
@@ -57,6 +59,7 @@ This is my first project where I used the *OpenSSL* library. I don't feel as a s
 * Improve certificate file format detection. Current way is not optimal, but for a viewer it should be ok.
 * Support viewing password-protected certificates.
 * Unicode support.
+* Language modules (yet only `english.slg` lang module is provided).
 
 ## License
 
