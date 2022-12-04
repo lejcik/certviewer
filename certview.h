@@ -33,12 +33,8 @@ extern WINDOWPLACEMENT CfgWindowPlacement; // neplatne, pokud CfgSavePosition !=
 
 extern DWORD LastCfgPage;   // start page (sheet) in configuration dialog
 
-// [0, 0] - pro otevrena okna viewru: konfigurace pluginu se zmenila
-#define WM_USER_VIEWERCFGCHNG WM_APP + 3346
 // [0, 0] - pro otevrena okna viewru: je treba podriznou historie
 #define WM_USER_CLEARHISTORY WM_APP + 3347
-// [0, 0] - pro otevrena okna vieweru: Salamander pregeneroval fonty, mame zavolat SetFont() listam
-#define WM_USER_SETTINGCHANGE WM_APP + 3248
 
 
 char *LoadStr(int resID);
@@ -52,9 +48,9 @@ class CPluginInterface:
 
     virtual BOOL WINAPI Release(HWND parent, BOOL force);
 
-    virtual void WINAPI LoadConfiguration(HWND parent, HKEY regKey, CSalamanderRegistryAbstract *registry);
-    virtual void WINAPI SaveConfiguration(HWND parent, HKEY regKey, CSalamanderRegistryAbstract *registry);
-    virtual void WINAPI Configuration(HWND parent);
+    virtual void WINAPI LoadConfiguration(HWND parent, HKEY regKey, CSalamanderRegistryAbstract* registry) {}
+    virtual void WINAPI SaveConfiguration(HWND parent, HKEY regKey, CSalamanderRegistryAbstract* registry) {}
+    virtual void WINAPI Configuration(HWND parent) {}
 
     virtual void WINAPI Connect(HWND parent, CSalamanderConnectAbstract *salamander);
 
@@ -79,9 +75,6 @@ class CPluginInterface:
 
 // rozhrani pluginu poskytnute Salamanderovi
 extern CPluginInterface PluginInterface;
-
-// otevre konfiguracni dialog; pokud jiz existuje, zobrazi hlasku a vrati se
-void OnConfiguration(HWND hParent);
 
 // otevre About okno
 void OnAbout(HWND hParent);

@@ -2,9 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by lang.rc
 //
-#define IDD_CFGPAGEVIEWER               490
-#define IDC_CFG_SAVEPOSONCLOSE          491
-#define IDC_CFG_SETBYMAINWINDOW         492
 
 // Next default values for new objects
 // 

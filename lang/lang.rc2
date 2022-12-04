@@ -33,8 +33,6 @@ STRINGTABLE
  IDS_PLUGIN_HOME,            "www.altap.cz"
  IDS_PLUGIN_BUGREP,          "An exception in CertView has occured, please inform authors!\nThanks!"
  IDS_PLUGIN_EMAIL,           "petr.solin@altap.cz"
- IDS_CFG_ALREADY_OPENED,     "The configuration is already opened."
  IDS_VIEWER_OPENWNDS,        "Some CertView viewer windows are opened. Do you want to close them?"
- IDS_CFG_TITLE,              "CertView Configuration"
  IDS_INVALID_NUM,            "Invalid number!"
 }

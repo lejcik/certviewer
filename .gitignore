@@ -1,32 +1,13 @@
-# Prerequisites
-*.d
+# module files
+*.spl
+*.slg
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
+# MSVC related files
 *.obj
-
-# Precompiled Headers
-*.gch
+*.pch
+*.aps
 *.pch
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+# others
+.vs
+.vscode

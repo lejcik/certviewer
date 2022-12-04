@@ -81,23 +81,6 @@ char *LoadStr(int resID)
 	return SalamanderGeneral->LoadStr(HLanguage, resID);
 }
 
-void OnConfiguration(HWND hParent)
-{
-	static BOOL InConfiguration = FALSE;
-	if (InConfiguration)
-	{
-		SalamanderGeneral->SalMessageBox(hParent, LoadStr(IDS_CFG_ALREADY_OPENED), LoadStr(IDS_PLUGINNAME),
-										 MB_ICONINFORMATION | MB_OK);
-		return;
-	}
-	InConfiguration = TRUE;
-	if (CConfigDialog(hParent).Execute() == IDOK)
-	{
-//		ViewerWindowQueue.BroadcastMessage(WM_USER_VIEWERCFGCHNG, 0, 0);
-	}
-	InConfiguration = FALSE;
-}
-
 void OnAbout(HWND hParent)
 {
 	char buf[1000];
@@ -160,8 +143,7 @@ CPluginInterfaceAbstract * WINAPI SalamanderPluginEntry(CSalamanderPluginEntryAb
 		return NULL;  // error
 
 	// setup basic info about the plugin
-	salamander->SetBasicPluginData(LoadStr(IDS_PLUGINNAME),
-								   FUNCTION_CONFIGURATION | FUNCTION_LOADSAVECONFIGURATION | FUNCTION_VIEWER,
+	salamander->SetBasicPluginData(LoadStr(IDS_PLUGINNAME), FUNCTION_VIEWER,
 								   VERSINFO_VERSION_NO_PLATFORM, VERSINFO_COPYRIGHT, LoadStr(IDS_PLUGIN_DESCRIPTION),
 								   PluginNameShort, NULL, NULL);
 
@@ -190,40 +172,6 @@ CPluginInterface::Release(HWND parent, BOOL force)
 {
 	CALL_STACK_MESSAGE2("CPluginInterface::Release(, %d)", force);
 	return TRUE;
-}
-
-void WINAPI
-CPluginInterface::LoadConfiguration(HWND parent, HKEY regKey, CSalamanderRegistryAbstract *registry)
-{
-	CALL_STACK_MESSAGE1("CPluginInterface::LoadConfiguration(, ,)");
-
-	if (regKey != NULL)   // load z registry
-	{
-		if (!registry->GetValue(regKey, CONFIG_VERSION, REG_DWORD, &ConfigVersion, sizeof(DWORD)))
-			ConfigVersion = CURRENT_CONFIG_VERSION;  // asi nejakej nenechavec... ;-)
-
-		registry->GetValue(regKey, CONFIG_SAVEPOS, REG_DWORD, &CfgSavePosition, sizeof(DWORD));
-		registry->GetValue(regKey, CONFIG_WNDPLACEMENT, REG_BINARY, &CfgWindowPlacement, sizeof(WINDOWPLACEMENT));
-	}
-}
-
-void WINAPI
-CPluginInterface::SaveConfiguration(HWND parent, HKEY regKey, CSalamanderRegistryAbstract *registry)
-{
-	CALL_STACK_MESSAGE1("CPluginInterface::SaveConfiguration(, ,)");
-
-	DWORD v = CURRENT_CONFIG_VERSION;
-	registry->SetValue(regKey, CONFIG_VERSION, REG_DWORD, &v, sizeof(DWORD));
-
-	registry->SetValue(regKey, CONFIG_SAVEPOS, REG_DWORD, &CfgSavePosition, sizeof(DWORD));
-	registry->SetValue(regKey, CONFIG_WNDPLACEMENT, REG_BINARY, &CfgWindowPlacement, sizeof(WINDOWPLACEMENT));
-}
-
-void WINAPI
-CPluginInterface::Configuration(HWND parent)
-{
-	CALL_STACK_MESSAGE1("CPluginInterface::Configuration()");
-	OnConfiguration(parent);
 }
 
 void WINAPI

@@ -204,8 +204,6 @@
     <ClCompile Include="..\certview.cpp">
     </ClCompile>
     <ClCompile Include="..\certdump.cpp" />
-    <ClCompile Include="..\dialogs.cpp">
-    </ClCompile>
     <ClCompile Include="..\openssl_helpers.cpp" />
     <ClCompile Include="..\precomp.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -246,8 +244,6 @@
     <ClInclude Include="..\certview.h">
     </ClInclude>
     <ClInclude Include="..\certdump.h" />
-    <ClInclude Include="..\dialogs.h">
-    </ClInclude>
     <ClInclude Include="..\openssl_helpers.h" />
     <ClInclude Include="..\precomp.h">
     </ClInclude>

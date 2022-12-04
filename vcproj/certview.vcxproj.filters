@@ -24,7 +24,6 @@
     <ClCompile Include="..\openssl_helpers.cpp" />
     <ClCompile Include="..\viewer.cpp" />
     <ClCompile Include="..\certview.cpp" />
-    <ClCompile Include="..\dialogs.cpp" />
     <ClCompile Include="..\precomp.cpp" />
     <ClCompile Include="..\certdump.cpp" />
   </ItemGroup>
@@ -69,7 +68,6 @@
     <ClInclude Include="..\openssl_helpers.h" />
     <ClInclude Include="..\precomp.h" />
     <ClInclude Include="..\certview.h" />
-    <ClInclude Include="..\dialogs.h" />
     <ClInclude Include="..\certdump.h" />
   </ItemGroup>
   <ItemGroup>

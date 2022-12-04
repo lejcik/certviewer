@@ -26,10 +26,8 @@
 #define IDS_PLUGIN_HOME          49
 #define IDS_PLUGIN_BUGREP        50
 #define IDS_PLUGIN_EMAIL         51
-#define IDS_CFG_ALREADY_OPENED   52
-#define IDS_VIEWER_OPENWNDS      53
-#define IDS_CFG_TITLE            54
-#define IDS_INVALID_NUM          55
+#define IDS_VIEWER_OPENWNDS      52
+#define IDS_INVALID_NUM          53
 
 #define IDB_TOOLBAR16            100
 #define IDB_TOOLBAR256           101
