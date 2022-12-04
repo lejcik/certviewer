@@ -21,12 +21,9 @@ class CPluginInterfaceForViewer:
       public CPluginInterfaceForViewerAbstract
 {
 public:
-    virtual BOOL WINAPI ViewFile(const char *name, int left, int top, int width, int height,
-                                 UINT showCmd, BOOL alwaysOnTop, BOOL returnLock, HANDLE *lock,
-                                 BOOL *lockOwner, CSalamanderPluginViewerData *viewerData,
-                                 int enumFilesSourceUID, int enumFilesCurrentIndex);
-    virtual BOOL WINAPI CanViewFile(const char *name);
-
-private:
-    BOOL ParseFile(const char *name, FILE *out);
+    BOOL WINAPI ViewFile(const char *name, int left, int top, int width, int height,
+                         UINT showCmd, BOOL alwaysOnTop, BOOL returnLock, HANDLE *lock,
+                         BOOL *lockOwner, CSalamanderPluginViewerData *viewerData,
+                         int enumFilesSourceUID, int enumFilesCurrentIndex) override;
+    BOOL WINAPI CanViewFile(const char *name) override;
 };

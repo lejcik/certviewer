@@ -44,33 +44,36 @@ class CPluginInterface:
       public CPluginInterfaceAbstract
 {
   public:
-    virtual void WINAPI About(HWND parent);
+    void WINAPI About(HWND parent) override;
 
-    virtual BOOL WINAPI Release(HWND parent, BOOL force);
+    BOOL WINAPI Release(HWND parent, BOOL force) override;
 
-    virtual void WINAPI LoadConfiguration(HWND parent, HKEY regKey, CSalamanderRegistryAbstract* registry) {}
-    virtual void WINAPI SaveConfiguration(HWND parent, HKEY regKey, CSalamanderRegistryAbstract* registry) {}
-    virtual void WINAPI Configuration(HWND parent) {}
+    void WINAPI LoadConfiguration(HWND parent, HKEY regKey, CSalamanderRegistryAbstract* registry) override {}
+    void WINAPI SaveConfiguration(HWND parent, HKEY regKey, CSalamanderRegistryAbstract* registry) override {}
+    void WINAPI Configuration(HWND parent) override {}
 
-    virtual void WINAPI Connect(HWND parent, CSalamanderConnectAbstract *salamander);
+    void WINAPI Connect(HWND parent, CSalamanderConnectAbstract *salamander) override;
 
-    virtual void WINAPI ReleasePluginDataInterface(CPluginDataInterfaceAbstract *pluginData) {}
+    void WINAPI ReleasePluginDataInterface(CPluginDataInterfaceAbstract *pluginData) override {}
 
-    virtual CPluginInterfaceForArchiverAbstract * WINAPI GetInterfaceForArchiver() {return NULL;}
-    virtual CPluginInterfaceForViewerAbstract * WINAPI GetInterfaceForViewer();
-    virtual CPluginInterfaceForMenuExtAbstract * WINAPI GetInterfaceForMenuExt() {return NULL;}
-    virtual CPluginInterfaceForFSAbstract * WINAPI GetInterfaceForFS() {return NULL;}
-    virtual CPluginInterfaceForThumbLoaderAbstract * WINAPI GetInterfaceForThumbLoader() {return NULL;}
+    CPluginInterfaceForArchiverAbstract * WINAPI GetInterfaceForArchiver() override {return NULL;}
+    CPluginInterfaceForViewerAbstract * WINAPI GetInterfaceForViewer() override;
+    CPluginInterfaceForMenuExtAbstract * WINAPI GetInterfaceForMenuExt() override {return NULL;}
+    CPluginInterfaceForFSAbstract * WINAPI GetInterfaceForFS() override {return NULL;}
+    CPluginInterfaceForThumbLoaderAbstract * WINAPI GetInterfaceForThumbLoader() override {return NULL;}
 
-    virtual void WINAPI Event(int event, DWORD param);
-    virtual void WINAPI ClearHistory(HWND parent);
-    virtual void WINAPI AcceptChangeOnPathNotification(const char *path, BOOL includingSubdirs) {}
+    void WINAPI Event(int event, DWORD param) override;
+    void WINAPI ClearHistory(HWND parent) override;
+    void WINAPI AcceptChangeOnPathNotification(const char *path, BOOL includingSubdirs) override {}
 
-    virtual BOOL WINAPI UninstallUnregisteredComponents(HWND parent, char *componentsDescr, BOOL *uninstallSPL,
-                                                        BOOL *uninstallLangDir, const char *pluginDir,
-                                                        CDynamicString *deleteFileList) {return FALSE;}
+#if defined(SALSDK_COMPATIBLE_WITH_VER) && SALSDK_COMPATIBLE_WITH_VER < 177
+    // pre Salamander version 4.0 backup compatibility workaround
+    BOOL WINAPI UninstallUnregisteredComponents(HWND parent, char *componentsDescr, BOOL *uninstallSPL,
+                                                BOOL *uninstallLangDir, const char *pluginDir,
+                                                CDynamicString *deleteFileList) override {return FALSE;}
+#endif
 
-    virtual void WINAPI PasswordManagerEvent(HWND parent, int event) {}
+    void WINAPI PasswordManagerEvent(HWND parent, int event) override {}
 };
 
 // rozhrani pluginu poskytnute Salamanderovi
