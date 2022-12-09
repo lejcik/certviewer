@@ -139,58 +139,28 @@
     <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x86-windows-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>$(VcpkgRoot)\installed\x86-windows-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcrypto.lib;ws2_32.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
+    <ClCompile />
+    <Link />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>$(VcpkgRoot)\installed\x64-windows-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcrypto.lib;ws2_32.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
+    <ClCompile />
+    <Link />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x64-windows-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>$(VcpkgRoot)\installed\x64-windows-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcrypto.lib;ws2_32.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
+    <ClCompile />
+    <Link />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Link>
-      <AdditionalLibraryDirectories>$(VcpkgRoot)\installed\x86-windows-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcrypto.lib;ws2_32.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <ClCompile>
-      <AdditionalIncludeDirectories>$(VcpkgRoot)\installed\x86-windows-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
+    <Link />
+    <ClCompile />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='SDK|Win32'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>$(VcpkgInstalledDir)x86-windows-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies>libcrypto.lib;ws2_32.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(VcpkgInstalledDir)x86-windows-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
+    <ClCompile />
+    <Link />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='SDK|x64'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>$(VcpkgInstalledDir)x64-windows-static\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies>libcrypto.lib;ws2_32.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(VcpkgInstalledDir)x64-windows-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
+    <ClCompile />
+    <Link />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\shared\auxtools.cpp">
