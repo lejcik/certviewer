@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="certview-test.cpp" />
+    <ClCompile Include="pem-tests.cpp" />
+    <ClCompile Include="utils.cpp" />
+    <ClCompile Include="..\certdump.cpp">
+      <Filter>plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\openssl_helpers.cpp">
+      <Filter>plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="precomp.cpp" />
+    <ClCompile Include="der-tests.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="utils.h" />
+    <ClInclude Include="..\certdump.h">
+      <Filter>plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\openssl_helpers.h">
+      <Filter>plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="precomp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="plugin">
+      <UniqueIdentifier>{e7ef0692-a611-4c9f-828f-42e2e0a0a09e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
