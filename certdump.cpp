@@ -11,9 +11,11 @@
 //
 //****************************************************************************
 
-#include "precomp.h"
+#include <precomp.h>
 #include "certdump.h"
 #include "openssl_helpers.h"
+#include <openssl/decoder.h>
+#include <openssl/ssl.h>
 
 BOOL errHandler(BIO *out)
 {
@@ -25,6 +27,12 @@ BOOL errHandler(BIO *out)
 	}
 
 	return TRUE;
+}
+
+void PrintCertHeader(BIO *bio_out, const char *objtype, const char *format)
+{
+	BIO_printf(bio_out, "Object type: %s\n", objtype);
+	BIO_printf(bio_out, "Format: %s\n\n", format);
 }
 
 BOOL ParseObjectType(BIO *bio_in, char *buf, size_t buflen)
@@ -86,8 +94,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out)
 		if (pos)
 			PrintSeparator(bio_out);
 
-		BIO_printf(bio_out, "Object type: %s\n", name);
-		BIO_printf(bio_out, "Format: PEM\n\n");
+		PrintCertHeader(bio_out, name, "PEM");
 
 		// seek back to read PEM object by type
 		BIO_seek(bio_in, pos);
@@ -102,16 +109,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out)
 			X509_print(bio_out, obj);
 			X509_free(obj);
 		}
-/*		else if (strcmp(name, PEM_STRING_X509_PAIR) == 0)
-		{
-			auto obj = PEM_read_bio_X509_CERT_PAIR(bio_in, NULL, 0, NULL);
-			if (!obj)
-				return errHandler(bio_out);
-			// TODO: unclear
-			// X509_CERT_PAIR_it(bio_out, obj);
-			X509_CERT_PAIR_free(obj);
-		}
-*/		else if (strcmp(name, PEM_STRING_X509_TRUSTED) == 0)
+		else if (strcmp(name, PEM_STRING_X509_TRUSTED) == 0)
 		{
 			auto obj = PEM_read_bio_X509_AUX(bio_in, NULL, 0, NULL);
 			if (!obj)
@@ -136,48 +134,27 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out)
 			X509_CRL_print(bio_out, obj);
 			X509_CRL_free(obj);
 		}
-		else if (strcmp(name, PEM_STRING_EVP_PKEY) == 0 ||
-				 strcmp(name, PEM_STRING_PUBLIC) == 0)
+		else if (strcmp(name, PEM_STRING_PUBLIC) == 0 ||
+				 strcmp(name, PEM_STRING_RSA_PUBLIC) == 0 ||
+				 strcmp(name, PEM_STRING_DSA_PUBLIC) == 0)
 		{
 			auto obj = PEM_read_bio_PUBKEY(bio_in, NULL, 0, NULL);
 			if (!obj)
 				return errHandler(bio_out);
 			EVP_PKEY_print_public(bio_out, obj, 0, NULL);
-			EVP_PKEY_print_private(bio_out, obj, 0, NULL);
-			EVP_PKEY_print_params(bio_out, obj, 0, NULL);
 			EVP_PKEY_free(obj);
 		}
-		else if (strcmp(name, PEM_STRING_RSA) == 0)
+		else if (strcmp(name, PEM_STRING_EVP_PKEY) == 0 ||
+				 strcmp(name, PEM_STRING_RSA) == 0 ||
+				 strcmp(name, PEM_STRING_DSA) == 0 ||
+				 strcmp(name, PEM_STRING_PKCS8INF) == 0 ||
+				 strcmp(name, PEM_STRING_ECPRIVATEKEY) == 0)
 		{
-			auto obj = PEM_read_bio_RSAPrivateKey(bio_in, NULL, 0, NULL);
+			auto obj = PEM_read_bio_PrivateKey(bio_in, NULL, 0, NULL);
 			if (!obj)
 				return errHandler(bio_out);
-			RSA_print(bio_out, obj, 0);
-			RSA_free(obj);
-		}
-		else if (strcmp(name, PEM_STRING_RSA_PUBLIC) == 0)
-		{
-			auto obj = PEM_read_bio_RSAPublicKey(bio_in, NULL, 0, NULL);
-			if (!obj)
-				return errHandler(bio_out);
-			RSA_print(bio_out, obj, 0);
-			RSA_free(obj);
-		}
-		else if (strcmp(name, PEM_STRING_DSA) == 0)
-		{
-			auto obj = PEM_read_bio_DSAPrivateKey(bio_in, NULL, 0, NULL);
-			if (!obj)
-				return errHandler(bio_out);
-			DSA_print(bio_out, obj, 0);
-			DSA_free(obj);
-		}
-		else if (strcmp(name, PEM_STRING_DSA_PUBLIC) == 0)
-		{
-			auto obj = PEM_read_bio_DSA_PUBKEY(bio_in, NULL, 0, NULL);
-			if (!obj)
-				return errHandler(bio_out);
-			DSA_print(bio_out, obj, 0);
-			DSA_free(obj);
+			EVP_PKEY_print_private(bio_out, obj, 0, NULL);
+			EVP_PKEY_free(obj);
 		}
 		else if (strcmp(name, PEM_STRING_PKCS7) == 0 ||
 				 strcmp(name, PEM_STRING_PKCS7_SIGNED) == 0)
@@ -194,20 +171,45 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out)
 			if (!obj)
 				return errHandler(bio_out);
 			// X509_SIG_it(bio_out, obj, 0, NULL);
+			BIO_printf(bio_out, "password protected private key\n");
 			X509_SIG_free(obj);
 		}
-		else if (strcmp(name, PEM_STRING_PKCS8INF) == 0)
+		else if (strcmp(name, PEM_STRING_DHPARAMS) == 0 ||
+				 strcmp(name, PEM_STRING_DHXPARAMS) == 0 ||
+				 strcmp(name, PEM_STRING_DSAPARAMS) == 0 ||
+				 strcmp(name, PEM_STRING_ECPARAMETERS) == 0 ||
+				 strcmp(name, PEM_STRING_PARAMETERS) == 0)
 		{
-			auto obj = PEM_read_bio_PKCS8_PRIV_KEY_INFO(bio_in, NULL, 0, NULL);
+			auto obj = PEM_read_bio_Parameters(bio_in, NULL);
 			if (!obj)
 				return errHandler(bio_out);
-			//PKCS8_PRIV_KEY_INFO_it(bio_out, obj, 0, NULL);
-
-			// TODO: print out private key info
-			BIO_printf(bio_out, "encrypted private key\n");
-			PKCS8_PRIV_KEY_INFO_free(obj);
+			EVP_PKEY_print_params(bio_out, obj, 0, NULL);
+			EVP_PKEY_free(obj);
 		}
-		// ...
+		else if (strcmp(name, PEM_STRING_SSL_SESSION) == 0)
+		{
+			auto obj = PEM_read_bio_SSL_SESSION(bio_in, NULL, NULL, NULL);
+			if (!obj)
+				return errHandler(bio_out);
+			SSL_SESSION_print(bio_out, obj);
+			BIO_printf(bio_out, "\n\nPeer certificate for the SSL session:\n\n");
+			auto peer = SSL_SESSION_get0_peer(obj);
+			if (peer)
+				X509_print(bio_out, peer);
+			else
+				BIO_printf(bio_out, "No certificate present\n");
+			SSL_SESSION_free(obj);
+		}
+#if 0
+		else if (strcmp(name, PEM_STRING_ECDSA_PUBLIC) == 0)
+		{
+			auto obj = PEM_read_bio_EC_PUBKEY(bio_in, NULL, NULL, NULL);
+			if (!obj)
+				return errHandler(bio_out);
+			EC_KEY_print(bio_out, obj, 0);
+			EC_KEY_free(obj);
+		}
+#endif
 		else if (strcmp(name, PEM_STRING_CMS) == 0)
 		{
 			auto obj = PEM_read_bio_CMS(bio_in, NULL, 0, NULL);
@@ -229,6 +231,8 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out)
 
 BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 {
+	static const char FORMAT[] = "DER";
+
 	// ensure that we are at the beginning of file
 	BIO_seek(bio_in, 0);
 
@@ -250,8 +254,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 	auto x509 = d2i_X509_bio(bio_in, NULL);
 	if (x509)
 	{
-		BIO_printf(bio_out, "Object type: %s\n", "X509 Certificate");
-		BIO_printf(bio_out, "Format: DER\n\n");
+		PrintCertHeader(bio_out, "X509 Certificate", FORMAT);
 
 		X509_print(bio_out, x509);
 		X509_free(x509);
@@ -262,8 +265,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 	auto x509crl = d2i_X509_CRL_bio(bio_in, NULL);
 	if (x509crl)
 	{
-		BIO_printf(bio_out, "Object type: %s\n", "X509 CRL");
-		BIO_printf(bio_out, "Format: DER\n\n");
+		PrintCertHeader(bio_out, "X509 CRL", FORMAT);
 
 		X509_CRL_print(bio_out, x509crl);
 		X509_CRL_free(x509crl);
@@ -274,8 +276,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 	auto x509req = d2i_X509_REQ_bio(bio_in, NULL);
 	if (x509req)
 	{
-		BIO_printf(bio_out, "Object type: %s\n", "X509 Certificate Request");
-		BIO_printf(bio_out, "Format: DER\n\n");
+		PrintCertHeader(bio_out, "X509 Certificate Request", FORMAT);
 
 		X509_REQ_print(bio_out, x509req);
 		X509_REQ_free(x509req);
@@ -286,8 +287,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 	auto pkcs7 = d2i_PKCS7_bio(bio_in, NULL);
 	if (pkcs7)
 	{
-		BIO_printf(bio_out, "Object type: %s\n", "PKCS7");
-		BIO_printf(bio_out, "Format: DER\n\n");
+		PrintCertHeader(bio_out, "PKCS7", FORMAT);
 
 		PKCS7_print_certs(bio_out, pkcs7);
 		PKCS7_free(pkcs7);
@@ -295,20 +295,30 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 	}
 
 	BIO_seek(bio_in, pos);
-	const char *rsa_type = "RSA Private Key";
-	auto rsa = d2i_RSAPrivateKey_bio(bio_in, NULL);
-	if (!rsa)
+	const char *obj_type = " Private Key";
+	auto obj = d2i_PrivateKey_bio(bio_in, NULL);
+	if (obj)
 	{
-		rsa_type = "RSA Public Key";
-		rsa = d2i_RSAPublicKey_bio(bio_in, NULL);
-	}
-	if (rsa)
-	{
-		BIO_printf(bio_out, "Object type: %s\n", rsa_type);
-		BIO_printf(bio_out, "Format: DER\n\n");
+		auto type = EVP_PKEY_get0_type_name(obj);
+		const auto type_str = std::string(type) + obj_type;
+		PrintCertHeader(bio_out, type_str.c_str(), FORMAT);
 
-		RSA_print(bio_out, rsa, 0);
-		RSA_free(rsa);
+		EVP_PKEY_print_private(bio_out, obj, 0, NULL);
+		EVP_PKEY_free(obj);
+		return TRUE;
+	}
+
+	BIO_seek(bio_in, pos);
+	obj_type = " Public Key";
+	obj = d2i_PUBKEY_bio(bio_in, NULL);
+	if (obj)
+	{
+		auto type = EVP_PKEY_get0_type_name(obj);
+		const auto type_str = std::string(type) + obj_type;
+		PrintCertHeader(bio_out, type_str.c_str(), FORMAT);
+
+		EVP_PKEY_print_public(bio_out, obj, 0, NULL);
+		EVP_PKEY_free(obj);
 		return TRUE;
 	}
 
@@ -334,7 +344,7 @@ BOOL DumpCertificate(const char *certFile, FILE *out)
 	BIO *bio_in = NULL;
 	BIO *bio_out = NULL;
 
-	// TODO: open certificate as a binary file, some systems
+	// NOTE: open certificate as a binary file, some systems
 	//       are sensitive on line endings, but on Windows
 	//       it looks it works well
 

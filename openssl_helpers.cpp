@@ -11,7 +11,7 @@
 //
 //****************************************************************************
 
-#include "precomp.h"
+#include <precomp.h>
 
 #include "openssl_helpers.h"
 
@@ -39,6 +39,7 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 	uint32_t eos = 0;
 	size_t off = 0;
 	size_t len = 0;
+	size_t diff;
 
 	const unsigned char *q;
 	long slen;
@@ -46,27 +47,28 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 
 	b = BUF_MEM_new();
 	if (b == NULL) {
-		ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ERR_R_MALLOC_FAILURE);
+		ERR_raise(ERR_LIB_ASN1, ERR_R_MALLOC_FAILURE);
 		return -1;
 	}
 
-	ERR_clear_error();
+	ERR_set_mark();
 	for (;;) {
-		if (want >= (len - off)) {
-			want -= (len - off);
+		diff = len - off;
+		if (want >= diff) {
+			want -= diff;
 
 			if (len + want < len || !BUF_MEM_grow_clean(b, len + want)) {
-				ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ERR_R_MALLOC_FAILURE);
+				ERR_raise(ERR_LIB_ASN1, ERR_R_MALLOC_FAILURE);
 				goto err;
 			}
 			i = BIO_read(in, &(b->data[len]), want);
-			if ((i < 0) && ((len - off) == 0)) {
-				ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_NOT_ENOUGH_DATA);
+			if (i < 0 && diff == 0) {
+				ERR_raise(ERR_LIB_ASN1, ASN1_R_NOT_ENOUGH_DATA);
 				goto err;
 			}
 			if (i > 0) {
 				if (len + i < len) {
-					ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_TOO_LONG);
+					ERR_raise(ERR_LIB_ASN1, ASN1_R_TOO_LONG);
 					goto err;
 				}
 				len += i;
@@ -76,15 +78,17 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 
 		p = (unsigned char *)&(b->data[off]);
 		q = p;
-		inf = ASN1_get_object(&q, &slen, &tag, &xclass, len - off);
+		diff = len - off;
+		if (diff == 0)
+			goto err;
+		inf = ASN1_get_object(&q, &slen, &tag, &xclass, diff);
 		if (inf & 0x80) {
 			unsigned long e;
 
-			e = ERR_GET_REASON(ERR_peek_error());
+			e = ERR_GET_REASON(ERR_peek_last_error());
 			if (e != ASN1_R_TOO_LONG)
 				goto err;
-			else
-				ERR_clear_error(); /* clear error */
+			ERR_pop_to_mark();
 		}
 		i = q - p;            /* header length */
 		off += i;               /* end of data */
@@ -92,7 +96,7 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 		if (inf & 1) {
 			/* no data body so go round again */
 			if (eos == UINT32_MAX) {
-				ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_HEADER_TOO_LONG);
+				ERR_raise(ERR_LIB_ASN1, ASN1_R_HEADER_TOO_LONG);
 				goto err;
 			}
 			eos++;
@@ -113,7 +117,7 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 				want -= (len - off);
 				if (want > INT_MAX /* BIO_read takes an int length */  ||
 					len + want < len) {
-					ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_TOO_LONG);
+					ERR_raise(ERR_LIB_ASN1, ASN1_R_TOO_LONG);
 					goto err;
 				}
 				while (want > 0) {
@@ -126,15 +130,14 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 					size_t chunk = want > chunk_max ? chunk_max : want;
 
 					if (!BUF_MEM_grow_clean(b, len + chunk)) {
-						ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ERR_R_MALLOC_FAILURE);
+						ERR_raise(ERR_LIB_ASN1, ERR_R_MALLOC_FAILURE);
 						goto err;
 					}
 					want -= chunk;
 					while (chunk > 0) {
 						i = BIO_read(in, &(b->data[len]), chunk);
 						if (i <= 0) {
-							ASN1err(ASN1_F_ASN1_D2I_READ_BIO,
-									ASN1_R_NOT_ENOUGH_DATA);
+							ERR_raise(ERR_LIB_ASN1, ASN1_R_NOT_ENOUGH_DATA);
 							goto err;
 						}
 					/*
@@ -149,7 +152,7 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 				}
 			}
 			if (off + slen < off) {
-				ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_TOO_LONG);
+				ERR_raise(ERR_LIB_ASN1, ASN1_R_TOO_LONG);
 				goto err;
 			}
 			off += slen;
@@ -161,13 +164,14 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 	}
 
 	if (off > INT_MAX) {
-		ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_TOO_LONG);
+		ERR_raise(ERR_LIB_ASN1, ASN1_R_TOO_LONG);
 		goto err;
 	}
 
 	*pb = b;
 	return off;
  err:
+	ERR_clear_last_mark();
 	BUF_MEM_free(b);
 	return -1;
 }
@@ -190,7 +194,6 @@ void PKCS7_print_certs(BIO *bio_out, const PKCS7 *pkcs7)
 			crls = pkcs7->d.sign->crl;
 		}
 		break;
-
 	case NID_pkcs7_signedAndEnveloped:
 		if (pkcs7->d.signed_and_enveloped != NULL)
 		{
@@ -198,7 +201,6 @@ void PKCS7_print_certs(BIO *bio_out, const PKCS7 *pkcs7)
 			crls = pkcs7->d.signed_and_enveloped->crl;
 		}
 		break;
-
 	default:
 		break;
 	}
