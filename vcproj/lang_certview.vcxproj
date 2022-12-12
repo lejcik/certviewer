@@ -67,11 +67,11 @@
     </Import>
     <Import Project="lang_certview.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\x86.props">
+    <Import Project="..\..\shared\vcproj2019\x86.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\lang_base.props">
+    <Import Project="..\..\shared\vcproj2019\lang_base.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\lang_release.props">
+    <Import Project="..\..\shared\vcproj2019\lang_release.props">
     </Import>
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
@@ -79,11 +79,11 @@
     </Import>
     <Import Project="lang_certview.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\x86.props">
+    <Import Project="..\..\shared\vcproj2019\x86.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\lang_base.props">
+    <Import Project="..\..\shared\vcproj2019\lang_base.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\lang_release.props">
+    <Import Project="..\..\shared\vcproj2019\lang_release.props">
     </Import>
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
@@ -91,11 +91,11 @@
     </Import>
     <Import Project="lang_certview.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\x86.props">
+    <Import Project="..\..\shared\vcproj2019\x86.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\lang_base.props">
+    <Import Project="..\..\shared\vcproj2019\lang_base.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\lang_debug.props">
+    <Import Project="..\..\shared\vcproj2019\lang_debug.props">
     </Import>
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='SDK|x64'" Label="PropertySheets">
@@ -103,11 +103,11 @@
     </Import>
     <Import Project="lang_certview.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\x64.props">
+    <Import Project="..\..\shared\vcproj2019\x64.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\lang_base.props">
+    <Import Project="..\..\shared\vcproj2019\lang_base.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\lang_release.props">
+    <Import Project="..\..\shared\vcproj2019\lang_release.props">
     </Import>
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
@@ -115,11 +115,11 @@
     </Import>
     <Import Project="lang_certview.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\x64.props">
+    <Import Project="..\..\shared\vcproj2019\x64.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\lang_base.props">
+    <Import Project="..\..\shared\vcproj2019\lang_base.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\lang_release.props">
+    <Import Project="..\..\shared\vcproj2019\lang_release.props">
     </Import>
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
@@ -127,11 +127,11 @@
     </Import>
     <Import Project="lang_certview.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\x64.props">
+    <Import Project="..\..\shared\vcproj2019\x64.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\lang_base.props">
+    <Import Project="..\..\shared\vcproj2019\lang_base.props">
     </Import>
-    <Import Project="..\..\shared\vcproj\lang_debug.props">
+    <Import Project="..\..\shared\vcproj2019\lang_debug.props">
     </Import>
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
