@@ -37,7 +37,7 @@ TEST_F(DerCertificate, RSA_Certificate_PrivateKey)
 	EXPECT_STREQ(GetObjectType().c_str(), "RSA Private Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContentRE("^Private-Key:"));
+	EXPECT_TRUE(SearchContent("Private-Key:"));
 }
 
 TEST_F(DerCertificate, RSA_Certificate_PublicKey)
@@ -46,7 +46,7 @@ TEST_F(DerCertificate, RSA_Certificate_PublicKey)
 	EXPECT_STREQ(GetObjectType().c_str(), "RSA Public Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContentRE("^Public-Key:"));
+	EXPECT_TRUE(SearchContent("Public-Key:"));
 }
 
 TEST_F(DerCertificate, DSA_Certificate_PrivateKey)
@@ -55,7 +55,7 @@ TEST_F(DerCertificate, DSA_Certificate_PrivateKey)
 	EXPECT_STREQ(GetObjectType().c_str(), "DSA Private Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContentRE("^Private-Key:"));
+	EXPECT_TRUE(SearchContent("Private-Key:"));
 }
 
 TEST_F(DerCertificate, DSA_Certificate_PublicKey)
@@ -64,7 +64,7 @@ TEST_F(DerCertificate, DSA_Certificate_PublicKey)
 	EXPECT_STREQ(GetObjectType().c_str(), "DSA Public Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContentRE("^Public-Key:"));
+	EXPECT_TRUE(SearchContent("Public-Key:"));
 }
 
 TEST_F(DerCertificate, EC_PrivateKey)
@@ -73,7 +73,7 @@ TEST_F(DerCertificate, EC_PrivateKey)
 	EXPECT_STREQ(GetObjectType().c_str(), "EC Private Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContentRE("^Private-Key:"));
+	EXPECT_TRUE(SearchContent("Private-Key:"));
 }
 
 TEST_F(DerCertificate, EC_PublicKey)
@@ -82,7 +82,7 @@ TEST_F(DerCertificate, EC_PublicKey)
 	EXPECT_STREQ(GetObjectType().c_str(), "EC Public Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContentRE("^Public-Key:"));
+	EXPECT_TRUE(SearchContent("Public-Key:"));
 }
 
 TEST_F(DerCertificate, PKCS7_Certificate)
