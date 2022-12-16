@@ -28,6 +28,7 @@ TEST_F(DerCertificate, X509_Certificate)
 	EXPECT_STREQ(GetObjectType().c_str(), "X509 Certificate");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Certificate:"));
 }
 
 TEST_F(DerCertificate, RSA_Certificate_PrivateKey)
@@ -36,6 +37,7 @@ TEST_F(DerCertificate, RSA_Certificate_PrivateKey)
 	EXPECT_STREQ(GetObjectType().c_str(), "RSA Private Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Private-Key:"));
 }
 
 TEST_F(DerCertificate, RSA_Certificate_PublicKey)
@@ -44,6 +46,7 @@ TEST_F(DerCertificate, RSA_Certificate_PublicKey)
 	EXPECT_STREQ(GetObjectType().c_str(), "RSA Public Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Public-Key:"));
 }
 
 TEST_F(DerCertificate, DSA_Certificate_PrivateKey)
@@ -52,6 +55,7 @@ TEST_F(DerCertificate, DSA_Certificate_PrivateKey)
 	EXPECT_STREQ(GetObjectType().c_str(), "DSA Private Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Private-Key:"));
 }
 
 TEST_F(DerCertificate, DSA_Certificate_PublicKey)
@@ -60,6 +64,7 @@ TEST_F(DerCertificate, DSA_Certificate_PublicKey)
 	EXPECT_STREQ(GetObjectType().c_str(), "DSA Public Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Public-Key:"));
 }
 
 TEST_F(DerCertificate, EC_PrivateKey)
@@ -68,6 +73,7 @@ TEST_F(DerCertificate, EC_PrivateKey)
 	EXPECT_STREQ(GetObjectType().c_str(), "EC Private Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Private-Key:"));
 }
 
 TEST_F(DerCertificate, EC_PublicKey)
@@ -76,4 +82,23 @@ TEST_F(DerCertificate, EC_PublicKey)
 	EXPECT_STREQ(GetObjectType().c_str(), "EC Public Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Public-Key:"));
+}
+
+TEST_F(DerCertificate, PKCS7_Certificate)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pkcs7-cert.der", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "PKCS7");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Certificate:"));
+}
+
+TEST_F(DerCertificate, PKCS7_Certificate_CRL)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pkcs7-cert-crl.der", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "PKCS7");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Certificate Revocation List \\(CRL\\):"));
 }
