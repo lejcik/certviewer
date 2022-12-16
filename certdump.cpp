@@ -321,6 +321,29 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		return TRUE;
 	}
 
+	BIO_seek(bio_in, pos);
+	auto ssl = d2i_SSL_SESSION_bio(bio_in, NULL);
+	if (ssl)
+	{
+		SSL_SESSION_print(bio_out, ssl);
+		BIO_printf(bio_out, "\n\nPeer certificate for the SSL session:\n\n");
+		auto peer = SSL_SESSION_get0_peer(ssl);
+		if (peer)
+			X509_print(bio_out, peer);
+		else
+			BIO_printf(bio_out, "No certificate present\n");
+		SSL_SESSION_free(ssl);
+	}
+
+	BIO_seek(bio_in, pos);
+	auto cms = d2i_CMS_bio(bio_in, NULL);
+	if (cms)
+	{
+		CMS_ContentInfo_print_ctx(bio_out, cms, 0, NULL);
+		CMS_ContentInfo_free(cms);
+		return TRUE;
+	}
+
 	return FALSE;
 }
 
