@@ -177,8 +177,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out)
 		else if (strcmp(name, PEM_STRING_DHPARAMS) == 0 ||
 				 strcmp(name, PEM_STRING_DHXPARAMS) == 0 ||
 				 strcmp(name, PEM_STRING_DSAPARAMS) == 0 ||
-				 strcmp(name, PEM_STRING_ECPARAMETERS) == 0 ||
-				 strcmp(name, PEM_STRING_PARAMETERS) == 0)
+				 strcmp(name, PEM_STRING_ECPARAMETERS) == 0)
 		{
 			auto obj = PEM_read_bio_Parameters(bio_in, NULL);
 			if (!obj)
@@ -203,11 +202,11 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out)
 #if 0
 		else if (strcmp(name, PEM_STRING_ECDSA_PUBLIC) == 0)
 		{
-			auto obj = PEM_read_bio_EC_PUBKEY(bio_in, NULL, NULL, NULL);
-			if (!obj)
-				return errHandler(bio_out);
-			EC_KEY_print(bio_out, obj, 0);
-			EC_KEY_free(obj);
+			// NOTE: this object seems not to be supported
+		}
+		else if (strcmp(name, PEM_STRING_PARAMETERS) == 0)
+		{
+			// NOTE: this object seems not to be supported
 		}
 #endif
 		else if (strcmp(name, PEM_STRING_CMS) == 0)
