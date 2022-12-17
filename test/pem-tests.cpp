@@ -31,6 +31,7 @@ TEST_F(PemCertificate, X509_Certificate_Old)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_X509_OLD);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Certificate:"));
 }
 
 TEST_F(PemCertificate, X509_Certificate)
@@ -39,6 +40,7 @@ TEST_F(PemCertificate, X509_Certificate)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_X509);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Certificate:"));
 }
 
 TEST_F(PemCertificate, X509_Trusted_Certificate)
@@ -47,6 +49,7 @@ TEST_F(PemCertificate, X509_Trusted_Certificate)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_X509_TRUSTED);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Certificate:"));
 }
 
 TEST_F(PemCertificate, X509_Certificate_RequestOld)
@@ -55,6 +58,7 @@ TEST_F(PemCertificate, X509_Certificate_RequestOld)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_X509_REQ_OLD);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Certificate Request:"));
 }
 
 TEST_F(PemCertificate, X509_Certificate_Request)
@@ -63,6 +67,7 @@ TEST_F(PemCertificate, X509_Certificate_Request)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_X509_REQ);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Certificate Request:"));
 }
 
 TEST_F(PemCertificate, X509_Certificate_CRL)
@@ -71,9 +76,11 @@ TEST_F(PemCertificate, X509_Certificate_CRL)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_X509_CRL);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Certificate Revocation List \\(CRL\\):"));
 }
 
-TEST_F(PemCertificate, Certificate_AnyPrivateKey)
+// test disabled as I don't have a sample file
+TEST_F(PemCertificate, DISABLED_Certificate_AnyPrivateKey)
 {
 	EXPECT_TRUE(DumpCertificate(CERT_PATH / "any-private-key.pem", *m_parser));
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_EVP_PKEY);
@@ -87,6 +94,7 @@ TEST_F(PemCertificate, Certificate_PublicKey)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_PUBLIC);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("Public-Key:"));
 }
 
 TEST_F(PemCertificate, RSA_Certificate_PrivateKey)
@@ -95,6 +103,7 @@ TEST_F(PemCertificate, RSA_Certificate_PrivateKey)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_RSA);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("Private-Key:"));
 }
 
 TEST_F(PemCertificate, RSA_Certificate_PublicKey)
@@ -103,6 +112,7 @@ TEST_F(PemCertificate, RSA_Certificate_PublicKey)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_RSA_PUBLIC);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("Public-Key:"));
 }
 
 TEST_F(PemCertificate, DSA_Certificate_PrivateKey)
@@ -111,6 +121,7 @@ TEST_F(PemCertificate, DSA_Certificate_PrivateKey)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_DSA);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("Private-Key:"));
 }
 
 TEST_F(PemCertificate, DSA_Certificate_PublicKey)
@@ -119,6 +130,7 @@ TEST_F(PemCertificate, DSA_Certificate_PublicKey)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_DSA_PUBLIC);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("Public-Key:"));
 }
 
 TEST_F(PemCertificate, PKCS7_Certificate)
@@ -127,6 +139,16 @@ TEST_F(PemCertificate, PKCS7_Certificate)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_PKCS7);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Certificate:"));
+}
+
+TEST_F(PemCertificate, PKCS7_Certificate_CRL)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pkcs7-cert-crl.pem", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "PKCS7");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContentRE("^Certificate Revocation List \\(CRL\\):"));
 }
 
 TEST_F(PemCertificate, PKCS7_Certificate_SignedData)
@@ -151,6 +173,7 @@ TEST_F(PemCertificate, PKCS8_Certificate_PrivateKey)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_PKCS8INF);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("Private-Key:"));
 }
 
 TEST_F(PemCertificate, DH_Parameters)
@@ -159,6 +182,7 @@ TEST_F(PemCertificate, DH_Parameters)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_DHPARAMS);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("DH Parameters:"));
 }
 
 TEST_F(PemCertificate, DHX_Parameters)
@@ -167,6 +191,7 @@ TEST_F(PemCertificate, DHX_Parameters)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_DHXPARAMS);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("DH Parameters:"));
 }
 
 TEST_F(PemCertificate, SSL_SessionParameters)
@@ -175,6 +200,7 @@ TEST_F(PemCertificate, SSL_SessionParameters)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_SSL_SESSION);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("SSL-Session:"));
 }
 
 TEST_F(PemCertificate, DSA_Parameters)
@@ -183,6 +209,7 @@ TEST_F(PemCertificate, DSA_Parameters)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_DSAPARAMS);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("DSA-Parameters:"));
 }
 
 // this object seems not to be supported by openssl
@@ -200,6 +227,7 @@ TEST_F(PemCertificate, EC_Parameters)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_ECPARAMETERS);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("EC-Parameters:"));
 }
 
 TEST_F(PemCertificate, EC_PrivateKey)
@@ -208,6 +236,7 @@ TEST_F(PemCertificate, EC_PrivateKey)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_ECPRIVATEKEY);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("Private-Key:"));
 }
 
 // this object seems not to be supported by openssl
@@ -225,5 +254,6 @@ TEST_F(PemCertificate, CMS)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_CMS);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("CMS_ContentInfo:"));
 }
 
