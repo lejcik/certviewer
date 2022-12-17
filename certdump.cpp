@@ -47,7 +47,14 @@ BOOL ParseObjectType(BIO *bio_in, char *buf, size_t buflen)
 
 	// save object type name
 	if (ret)
+#ifdef _WIN32
 		strcpy_s(buf, buflen, name);
+#else
+	{
+		strncpy(buf, name, buflen);
+		buf[buflen - 1] = 0;
+	}
+#endif
 	else
 		*buf = 0;
 
@@ -241,9 +248,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 	// verify that file is in DER format
 	BUF_MEM *b = NULL;
 	auto len = asn1_d2i_read_bio(bio_in, &b);
-	if (len <= 0)
-		return FALSE;
-	if (!b)
+	if (len <= 0 || !b)
 		return FALSE;
 	BUF_MEM_free(b);
 

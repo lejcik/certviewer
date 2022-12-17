@@ -25,7 +25,6 @@ CertParser::CertParser() :
 	m_tmpname{make_tmpname()},
 	m_file{make_tmpfile()}
 {
-	//m_file = fopen(m_tmpname.c_str(), "w");
 }
 
 CertParser::~CertParser()
