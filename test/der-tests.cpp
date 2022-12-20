@@ -105,6 +105,15 @@ TEST_F(DerCertificate, PKCS7_Certificate_CRL)
 	EXPECT_TRUE(SearchContent("crl:"));
 }
 
+TEST_F(DerCertificate, SSL_SessionParameters)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "ssl-session-params.der", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "SSL Session Parameters");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("SSL-Session:"));
+}
+
 TEST_F(DerCertificate, CMS)
 {
 	// NOTE: CMS file has the same form as PKCS7, that's why it is identified as PKCS7

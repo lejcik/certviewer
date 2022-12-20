@@ -330,7 +330,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 	auto ssl = d2i_SSL_SESSION_bio(bio_in, NULL);
 	if (ssl)
 	{
-		PrintCertHeader(bio_out, "SSL Session", FORMAT);
+		PrintCertHeader(bio_out, "SSL Session Parameters", FORMAT);
 
 		SSL_SESSION_print(bio_out, ssl);
 		BIO_printf(bio_out, "\n\nPeer certificate for the SSL session:\n\n");
@@ -340,6 +340,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		else
 			BIO_printf(bio_out, "No certificate present\n");
 		SSL_SESSION_free(ssl);
+		return TRUE;
 	}
 
 	BIO_seek(bio_in, pos);
