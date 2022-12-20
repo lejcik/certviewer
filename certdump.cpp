@@ -169,7 +169,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out)
 			auto obj = PEM_read_bio_PKCS7(bio_in, NULL, 0, NULL);
 			if (!obj)
 				return errHandler(bio_out);
-			PKCS7_print_certs(bio_out, obj);
+			PKCS7_print_ctx(bio_out, obj, 0, NULL);
 			PKCS7_free(obj);
 		}
 		else if (strcmp(name, PEM_STRING_PKCS8) == 0)
@@ -293,7 +293,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 	{
 		PrintCertHeader(bio_out, "PKCS7", FORMAT);
 
-		PKCS7_print_certs(bio_out, pkcs7);
+		PKCS7_print_ctx(bio_out, pkcs7, 0, NULL);
 		PKCS7_free(pkcs7);
 		return TRUE;
 	}
@@ -330,6 +330,8 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 	auto ssl = d2i_SSL_SESSION_bio(bio_in, NULL);
 	if (ssl)
 	{
+		PrintCertHeader(bio_out, "SSL Session", FORMAT);
+
 		SSL_SESSION_print(bio_out, ssl);
 		BIO_printf(bio_out, "\n\nPeer certificate for the SSL session:\n\n");
 		auto peer = SSL_SESSION_get0_peer(ssl);
@@ -344,6 +346,10 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 	auto cms = d2i_CMS_bio(bio_in, NULL);
 	if (cms)
 	{
+		// NOTE: DER format of CMS file is identical with PKCS7 one,
+		//       so it may be opened with d2i_PKCS7_bio()
+		PrintCertHeader(bio_out, "CMS", FORMAT);
+
 		CMS_ContentInfo_print_ctx(bio_out, cms, 0, NULL);
 		CMS_ContentInfo_free(cms);
 		return TRUE;

@@ -139,7 +139,8 @@ TEST_F(PemCertificate, PKCS7_Certificate)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_PKCS7);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContentRE("^Certificate:"));
+	// there has to be at least 1 certificate
+	EXPECT_TRUE(SearchContent("cert_info:"));
 }
 
 TEST_F(PemCertificate, PKCS7_Certificate_CRL)
@@ -148,7 +149,8 @@ TEST_F(PemCertificate, PKCS7_Certificate_CRL)
 	EXPECT_STREQ(GetObjectType().c_str(), "PKCS7");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContentRE("^Certificate Revocation List \\(CRL\\):"));
+	// there has to be at least 1 CRL
+	EXPECT_TRUE(SearchContent("crl:"));
 }
 
 TEST_F(PemCertificate, PKCS7_Certificate_SignedData)

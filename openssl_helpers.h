@@ -25,5 +25,3 @@
 void PrintSeparator(BIO *bio_out);
 
 int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb);
-
-void PKCS7_print_certs(BIO *bio_out, const PKCS7 *pkcs7);
