@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "certview-test", "certview-test.vcxproj", "{02210685-0997-4468-AA95-8B104172C9AB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "certdump-test", "certdump-test.vcxproj", "{02210685-0997-4468-AA95-8B104172C9AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
