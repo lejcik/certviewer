@@ -105,6 +105,14 @@ TEST_F(DerCertificate, PKCS7_Certificate_CRL)
 	EXPECT_TRUE(SearchContent("crl:"));
 }
 
+TEST_F(DerCertificate, PKCS8_Certificate_EncryptedPrivateKey)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pkcs8-private-key-encrypted.der", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "Encrypted Private Key");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+}
+
 TEST_F(DerCertificate, SSL_SessionParameters)
 {
 	EXPECT_TRUE(DumpCertificate(CERT_PATH / "ssl-session-params.der", *m_parser));

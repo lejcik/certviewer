@@ -25,3 +25,5 @@
 void PrintSeparator(BIO *bio_out);
 
 int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb);
+
+int alg_print(BIO *bio_out, const X509_ALGOR *alg);

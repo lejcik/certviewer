@@ -35,6 +35,28 @@ void PrintCertHeader(BIO *bio_out, const char *objtype, const char *format)
 	BIO_printf(bio_out, "Format: %s\n\n", format);
 }
 
+void PrintPKCS8(BIO *bio_out, X509_SIG *p8)
+{
+	BIO_printf(bio_out, "X509 password protected private key\n");
+
+	const X509_ALGOR* alg;
+	// const ASN1_OCTET_STRING *digest;
+	X509_SIG_get0(p8, &alg, NULL /* &digest */);
+	if (alg)
+		alg_print(bio_out, alg);
+}
+
+void PrintSslSessionParams(BIO *bio_out, SSL_SESSION *ssl)
+{
+	SSL_SESSION_print(bio_out, ssl);
+	BIO_printf(bio_out, "\n\nPeer certificate for the SSL session:\n\n");
+	auto peer = SSL_SESSION_get0_peer(ssl);
+	if (peer)
+		X509_print(bio_out, peer);
+	else
+		BIO_printf(bio_out, "  No certificate present\n");
+}
+
 BOOL ParseObjectType(BIO *bio_in, char *buf, size_t buflen)
 {
 	// PEM object type data
@@ -177,8 +199,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out)
 			auto obj = PEM_read_bio_PKCS8(bio_in, NULL, 0, NULL);
 			if (!obj)
 				return errHandler(bio_out);
-			// X509_SIG_it(bio_out, obj, 0, NULL);
-			BIO_printf(bio_out, "password protected private key\n");
+			PrintPKCS8(bio_out, obj);
 			X509_SIG_free(obj);
 		}
 		else if (strcmp(name, PEM_STRING_DHPARAMS) == 0 ||
@@ -197,13 +218,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out)
 			auto obj = PEM_read_bio_SSL_SESSION(bio_in, NULL, NULL, NULL);
 			if (!obj)
 				return errHandler(bio_out);
-			SSL_SESSION_print(bio_out, obj);
-			BIO_printf(bio_out, "\n\nPeer certificate for the SSL session:\n\n");
-			auto peer = SSL_SESSION_get0_peer(obj);
-			if (peer)
-				X509_print(bio_out, peer);
-			else
-				BIO_printf(bio_out, "No certificate present\n");
+			PrintSslSessionParams(bio_out, obj);
 			SSL_SESSION_free(obj);
 		}
 #if 0
@@ -327,18 +342,23 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 	}
 
 	BIO_seek(bio_in, pos);
+	auto p8 = d2i_PKCS8_bio(bio_in, NULL);
+	if (p8)
+	{
+		PrintCertHeader(bio_out, "Encrypted Private Key", FORMAT);
+
+		PrintPKCS8(bio_out, p8);
+		X509_SIG_free(p8);
+		return TRUE;
+	}
+
+	BIO_seek(bio_in, pos);
 	auto ssl = d2i_SSL_SESSION_bio(bio_in, NULL);
 	if (ssl)
 	{
 		PrintCertHeader(bio_out, "SSL Session Parameters", FORMAT);
 
-		SSL_SESSION_print(bio_out, ssl);
-		BIO_printf(bio_out, "\n\nPeer certificate for the SSL session:\n\n");
-		auto peer = SSL_SESSION_get0_peer(ssl);
-		if (peer)
-			X509_print(bio_out, peer);
-		else
-			BIO_printf(bio_out, "No certificate present\n");
+		PrintSslSessionParams(bio_out, ssl);
 		SSL_SESSION_free(ssl);
 		return TRUE;
 	}
