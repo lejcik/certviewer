@@ -1,0 +1,47 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'cpp' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -y libssl-dev libgtest-dev
+
+    - name: Configure the test app
+      run: |
+        cd test
+        mkdir build
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-O0 -g -W -Wextra -Wall -Werror" ..
+
+    - name: Build the test app
+      run: |
+        cd test/build
+        cmake --build .
+
+    - name: Run the test app
+      continue-on-error: true
+      run: |
+        cd test/build
+        ln -s ../certificates/ certificates
+        ctest
+
+    - name: Archive the test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-report
+        path: test/build/Testing/Temporary/LastTest.log
