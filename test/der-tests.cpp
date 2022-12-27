@@ -85,6 +85,15 @@ TEST_F(DerCertificate, EC_PublicKey)
 	EXPECT_TRUE(SearchContent("Public-Key:"));
 }
 
+TEST_F(DerCertificate, EC_Parameters)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "ec-params.der", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "EC Parameters");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("ECDSA-Parameters:"));
+}
+
 TEST_F(DerCertificate, PKCS7_Certificate)
 {
 	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pkcs7-cert.der", *m_parser));
@@ -111,6 +120,15 @@ TEST_F(DerCertificate, PKCS8_Certificate_EncryptedPrivateKey)
 	EXPECT_STREQ(GetObjectType().c_str(), "Encrypted Private Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+}
+
+TEST_F(DerCertificate, DH_Parameters)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "dh-params.der", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "DH Parameters");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("DH Parameters:"));
 }
 
 TEST_F(DerCertificate, SSL_SessionParameters)

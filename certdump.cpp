@@ -250,6 +250,54 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out)
 	return TRUE;
 }
 
+EVP_PKEY *Get_KeyParams_bio(BIO *bio_in)
+{
+	// all types for d2i_KeyParams(type, ...)
+	static const int types[] =
+	{
+		EVP_PKEY_RSA,
+		EVP_PKEY_RSA2,
+		EVP_PKEY_RSA_PSS,
+		EVP_PKEY_DSA,
+		EVP_PKEY_DSA1,
+		EVP_PKEY_DSA2,
+		EVP_PKEY_DSA3,
+		EVP_PKEY_DSA4,
+		EVP_PKEY_DH,
+		EVP_PKEY_DHX,
+		EVP_PKEY_EC,
+		EVP_PKEY_SM2,
+		EVP_PKEY_HMAC,
+		EVP_PKEY_CMAC,
+		EVP_PKEY_SCRYPT,
+		EVP_PKEY_TLS1_PRF,
+		EVP_PKEY_HKDF,
+		EVP_PKEY_POLY1305,
+		EVP_PKEY_SIPHASH,
+		EVP_PKEY_X25519,
+		EVP_PKEY_ED25519,
+		EVP_PKEY_X448,
+		EVP_PKEY_ED448
+	};
+
+	BUF_MEM *b = NULL;
+	int len = asn1_d2i_read_bio(bio_in, &b);
+	if (len < 0)
+		return NULL;
+
+	EVP_PKEY *ret = NULL;
+	for (auto type : types)
+	{
+		const unsigned char *p = (unsigned char *) b->data;
+		ret = d2i_KeyParams(type, NULL, &p, len);
+		if (ret != NULL)
+			break;
+	}
+
+	BUF_MEM_free(b);
+	return ret;
+}
+
 BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 {
 	static const char FORMAT[] = "DER";
@@ -337,6 +385,20 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		PrintCertHeader(bio_out, type_str.c_str(), FORMAT);
 
 		EVP_PKEY_print_public(bio_out, obj, 0, NULL);
+		EVP_PKEY_free(obj);
+		return TRUE;
+	}
+
+	BIO_seek(bio_in, pos);
+	obj_type = " Parameters";
+	obj = Get_KeyParams_bio(bio_in);
+	if (obj)
+	{
+		auto type = EVP_PKEY_get0_type_name(obj);
+		const auto type_str = std::string(type) + obj_type;
+		PrintCertHeader(bio_out, type_str.c_str(), FORMAT);
+
+		EVP_PKEY_print_params(bio_out, obj, 0, NULL);
 		EVP_PKEY_free(obj);
 		return TRUE;
 	}
