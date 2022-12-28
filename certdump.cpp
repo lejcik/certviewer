@@ -480,7 +480,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 	auto ocsp_resp = d2i_OCSP_RESPONSE_bio(bio_in, NULL);
 	if (ocsp_resp)
 	{
-		PrintCertHeader(bio_out, "OCSP Reponse", FORMAT);
+		PrintCertHeader(bio_out, "OCSP Response", FORMAT);
 		OCSP_RESPONSE_print(bio_out, ocsp_resp, 0);
 		OCSP_RESPONSE_free(ocsp_resp);
 		return TRUE;
