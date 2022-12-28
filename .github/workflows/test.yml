@@ -34,14 +34,7 @@ jobs:
         cmake --build .
 
     - name: Run the test app
-      continue-on-error: true
       run: |
         cd test/build
         ln -s ../certificates/ certificates
-        ctest
-
-    - name: Archive the test results
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-report
-        path: test/build/Testing/Temporary/LastTest.log
+        ctest --verbose
