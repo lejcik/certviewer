@@ -17,6 +17,7 @@
 #include <openssl/decoder.h>
 #include <openssl/ssl.h>
 #include <openssl/ts.h>
+#include <openssl/ocsp.h>
 
 BOOL errHandler(BIO *out)
 {
@@ -462,6 +463,26 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 			PKCS7_print_ctx(bio_out, token, 2, NULL);
 		}
 		TS_RESP_free(ts_resp);
+		return TRUE;
+	}
+
+	BIO_seek(bio_in, pos);
+	auto ocsp_req = d2i_OCSP_REQUEST_bio(bio_in, NULL);
+	if (ocsp_req)
+	{
+		PrintCertHeader(bio_out, "OCSP Request", FORMAT);
+		OCSP_REQUEST_print(bio_out, ocsp_req, 0);
+		OCSP_REQUEST_free(ocsp_req);
+		return TRUE;
+	}
+
+	BIO_seek(bio_in, pos);
+	auto ocsp_resp = d2i_OCSP_RESPONSE_bio(bio_in, NULL);
+	if (ocsp_resp)
+	{
+		PrintCertHeader(bio_out, "OCSP Reponse", FORMAT);
+		OCSP_RESPONSE_print(bio_out, ocsp_resp, 0);
+		OCSP_RESPONSE_free(ocsp_resp);
 		return TRUE;
 	}
 

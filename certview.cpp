@@ -180,7 +180,7 @@ CPluginInterface::Connect(HWND parent, CSalamanderConnectAbstract *salamander)
 	CALL_STACK_MESSAGE1("CPluginInterface::Connect(,)");
 
 	// supported file extensions:
-	salamander->AddViewer("*.pem;*.key;*.crl;*.csr;*.cer;*.cert;*.crt;*.der;*.pub;*.tsq;*.tsr;*.p7b;*.p8;*.pk8", FALSE);
+	salamander->AddViewer("*.pem;*.key;*.crl;*.csr;*.cer;*.cert;*.crt;*.der;*.pub;*.tsq;*.tsr;*.req;*.res;*.p7b;*.p7s;*.p8;*.pk8", FALSE);
 }
 
 void WINAPI

@@ -167,3 +167,21 @@ TEST_F(DerCertificate, TS_Reply)
 	EXPECT_FALSE(FindDecodeFailedMsg());
 	EXPECT_TRUE(SearchContent("Status info:"));
 }
+
+TEST_F(DerCertificate, OCSP_Request)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "ocsp-request.req", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "OCSP Request");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("OCSP Request Data:"));
+}
+
+TEST_F(DerCertificate, OCSP_Response)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "ocsp-response.res", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "OCSP Response");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("OCSP Response Data:"));
+}
