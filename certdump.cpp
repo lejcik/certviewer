@@ -16,6 +16,7 @@
 #include "openssl_helpers.h"
 #include <openssl/decoder.h>
 #include <openssl/ssl.h>
+#include <openssl/ts.h>
 
 BOOL errHandler(BIO *out)
 {
@@ -435,6 +436,46 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 
 		CMS_ContentInfo_print_ctx(bio_out, cms, 0, NULL);
 		CMS_ContentInfo_free(cms);
+		return TRUE;
+	}
+
+	BIO_seek(bio_in, pos);
+	auto ts_req = d2i_TS_REQ_bio(bio_in, NULL);
+	if (ts_req)
+	{
+		PrintCertHeader(bio_out, "TS Query", FORMAT);
+		TS_REQ_print_bio(bio_out, ts_req);
+		TS_REQ_free(ts_req);
+		return TRUE;
+	}
+
+	BIO_seek(bio_in, pos);
+	auto ts_resp = d2i_TS_RESP_bio(bio_in, NULL);
+	if (ts_resp)
+	{
+		PrintCertHeader(bio_out, "TS Response", FORMAT);
+		TS_RESP_print_bio(bio_out, ts_resp);
+		TS_RESP_free(ts_resp);
+		return TRUE;
+	}
+
+	BIO_seek(bio_in, pos);
+	auto ts_msg = d2i_TS_MSG_IMPRINT_bio(bio_in, NULL);
+	if (ts_msg)
+	{
+		PrintCertHeader(bio_out, "TS Message Imprint", FORMAT);
+		TS_MSG_IMPRINT_print_bio(bio_out, ts_msg);
+		TS_MSG_IMPRINT_free(ts_msg);
+		return TRUE;
+	}
+
+	BIO_seek(bio_in, pos);
+	auto ts_info = d2i_TS_TST_INFO_bio(bio_in, NULL);
+	if (ts_info)
+	{
+		PrintCertHeader(bio_out, "TS TST Info", FORMAT);
+		TS_TST_INFO_print_bio(bio_out, ts_info);
+		TS_TST_INFO_free(ts_info);
 		return TRUE;
 	}
 

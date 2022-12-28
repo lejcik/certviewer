@@ -149,3 +149,20 @@ TEST_F(DerCertificate, CMS)
 	EXPECT_FALSE(FindDecodeFailedMsg());
 	EXPECT_TRUE(SearchContent("PKCS7:"));
 }
+
+TEST_F(DerCertificate, TS_Query)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "ts-query.tsq", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "TS Query");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("Hash Algorithm:"));
+}
+
+TEST_F(DerCertificate, TS_Reply)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "ts-reply.tsq", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "TS Reply");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+}
