@@ -139,6 +139,7 @@ TEST_F(PemCertificate, PKCS7_Certificate)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_PKCS7);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("PKCS7:"));
 	// there has to be at least 1 certificate
 	EXPECT_TRUE(SearchContent("cert_info:"));
 }
@@ -149,6 +150,7 @@ TEST_F(PemCertificate, PKCS7_Certificate_CRL)
 	EXPECT_STREQ(GetObjectType().c_str(), "PKCS7");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("PKCS7:"));
 	// there has to be at least 1 CRL
 	EXPECT_TRUE(SearchContent("crl:"));
 }
@@ -159,6 +161,8 @@ TEST_F(PemCertificate, PKCS7_Certificate_SignedData)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_PKCS7_SIGNED);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("PKCS7:"));
+	EXPECT_TRUE(SearchContent("pkcs7-signedData"));
 }
 
 TEST_F(PemCertificate, PKCS8_Certificate_EncryptedPrivateKey)
@@ -167,6 +171,7 @@ TEST_F(PemCertificate, PKCS8_Certificate_EncryptedPrivateKey)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_PKCS8);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("Algorithm:"));
 }
 
 TEST_F(PemCertificate, PKCS8_Certificate_PrivateKey)
@@ -262,6 +267,14 @@ TEST_F(PemCertificate, CMS)
 TEST_F(PemCertificate, CorruptedCertificate)
 {
 	EXPECT_FALSE(DumpCertificate(CERT_PATH / "corrupted.pem", *m_parser));
+}
+
+TEST_F(PemCertificate, UnknownObjectName)
+{
+	EXPECT_FALSE(DumpCertificate(CERT_PATH / "unknown-obj.pem", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "TEST OBJECT");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_TRUE(FindDecodeFailedMsg());
 }
 
 TEST_F(PemCertificate, CertificateBundle)
