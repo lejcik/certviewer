@@ -453,29 +453,15 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 	auto ts_resp = d2i_TS_RESP_bio(bio_in, NULL);
 	if (ts_resp)
 	{
-		PrintCertHeader(bio_out, "TS Response", FORMAT);
+		PrintCertHeader(bio_out, "TS Reply", FORMAT);
 		TS_RESP_print_bio(bio_out, ts_resp);
+		auto token = TS_RESP_get_token(ts_resp);
+		if (token)
+		{
+			BIO_printf(bio_out, "\n\nToken:\n");
+			PKCS7_print_ctx(bio_out, token, 2, NULL);
+		}
 		TS_RESP_free(ts_resp);
-		return TRUE;
-	}
-
-	BIO_seek(bio_in, pos);
-	auto ts_msg = d2i_TS_MSG_IMPRINT_bio(bio_in, NULL);
-	if (ts_msg)
-	{
-		PrintCertHeader(bio_out, "TS Message Imprint", FORMAT);
-		TS_MSG_IMPRINT_print_bio(bio_out, ts_msg);
-		TS_MSG_IMPRINT_free(ts_msg);
-		return TRUE;
-	}
-
-	BIO_seek(bio_in, pos);
-	auto ts_info = d2i_TS_TST_INFO_bio(bio_in, NULL);
-	if (ts_info)
-	{
-		PrintCertHeader(bio_out, "TS TST Info", FORMAT);
-		TS_TST_INFO_print_bio(bio_out, ts_info);
-		TS_TST_INFO_free(ts_info);
 		return TRUE;
 	}
 
