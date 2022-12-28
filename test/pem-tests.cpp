@@ -259,3 +259,28 @@ TEST_F(PemCertificate, CMS)
 	EXPECT_TRUE(SearchContent("CMS_ContentInfo:"));
 }
 
+TEST_F(PemCertificate, CorruptedCertificate)
+{
+	EXPECT_FALSE(DumpCertificate(CERT_PATH / "corrupted.pem", *m_parser));
+}
+
+TEST_F(PemCertificate, CertificateBundle)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "bundle.pem", *m_parser));
+	EXPECT_FALSE(FindDecodeFailedMsg());
+
+	// bundle certificates order
+	static const char *bundle_certs[] = { PEM_STRING_DSA, PEM_STRING_X509_REQ, PEM_STRING_X509, 0 };
+
+	// verify the certs order
+	auto expected = bundle_certs;
+	for (auto line : m_parser->GetContent())
+	{
+		if (line.find("Object type:") == std::string::npos)
+			continue;
+		EXPECT_TRUE(line.find(*expected) != std::string::npos);
+		expected++;
+		if (*expected == 0)
+			break;
+	}
+}
