@@ -2,6 +2,9 @@
 // Microsoft Visual C++ generated include file.
 // Used by lang.rc
 //
+#define IDD_PWDDLG                      530
+#define IDC_PWDSTRING                   531
+#define IDC_HIDE_PWD                    532
 
 // Next default values for new objects
 // 

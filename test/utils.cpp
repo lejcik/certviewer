@@ -107,9 +107,21 @@ void TestFixureBase::TearDown()
 	m_parser.reset();
 }
 
-BOOL TestFixureBase::DumpCertificate(fs::path in, CertParser &out)
+BOOL TestFixureBase::DumpCertificate(fs::path in, CertParser &out, const std::string &password)
 {
-	BOOL ret = ::DumpCertificate(in.string().c_str(), out.GetFilePtr());
+	auto pwdHandler = [&password](char *buf, int size) -> int
+		{
+			if (password.empty())
+				return -1;
+#ifdef _WIN32
+			strncpy_s(buf, size, password.c_str(), password.length());
+#else
+			strncpy(buf, password.c_str(), size);
+#endif
+			return password.size();
+		};
+
+	BOOL ret = ::DumpCertificate(in.string().c_str(), out.GetFilePtr(), pwdHandler);
 	out.ParseFile();
 	return ret;
 }

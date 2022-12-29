@@ -55,8 +55,23 @@ CPluginInterfaceForViewer::ViewFile(const char *name, int left, int top, int wid
 		if (!hTmpFile)
 			return FALSE;
 
+		// ask for the password once only per file view
+		bool show_dlg = true;
+		// password handler callback
+		auto pwdHandler = [&show_dlg](char *buf, int size) -> int
+		{
+			*buf = 0;
+
+			if (!show_dlg)
+				return -1;
+			show_dlg = false;
+
+			CPasswordDialog dlg(SalamanderGeneral->GetMsgBoxParent(), buf, size);
+			return (dlg.Execute() == IDOK) ? strlen(buf) : -1;
+		};
+
 		// try out to dump info of the certificate
-		if (!DumpCertificate(name, hTmpFile))
+		if (!DumpCertificate(name, hTmpFile, pwdHandler))
 		{
 			fclose(hTmpFile);
 

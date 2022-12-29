@@ -52,6 +52,58 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PWDDLG DIALOGEX 66, 53, 243, 82
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Certificate Viewer"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "The Certificate file is password protected. Enter the password if you want to see the certificate file content.",IDC_STATIC_1,10,10,223,20
+    LTEXT           "&Password:",IDC_STATIC_2,10,37,40,13,SS_CENTERIMAGE
+    EDITTEXT        IDC_PWDSTRING,60,38,172,12,ES_AUTOHSCROLL | WS_GROUP
+    CONTROL         "&Hide password",IDC_HIDE_PWD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,57,77,10
+    DEFPUSHBUTTON   "OK",IDOK,126,58,50,14,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,183,58,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_PWDDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 10
+        RIGHTMARGIN, 233
+        VERTGUIDE, 183
+        TOPMARGIN, 10
+        BOTTOMMARGIN, 72
+        HORZGUIDE, 30
+        HORZGUIDE, 50
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_PWDDLG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 

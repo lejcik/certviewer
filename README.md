@@ -11,7 +11,7 @@ To get started, download and install the [Altap Salamander SDK](https://www.alta
 
 Download and unpack the archive with SDK into your project directory. Project file is preconfigured to use the Altap Salamander SDK, so it has to be cloned into path: `salamand\plugins\certviewer`.
 
-Project depends also on the [OpenSSL](http://openssl.org) library, it was depeloped and tested with version **1.1.1l**. Porting it to a never version should be smooth. Poject is preconfigured to use [vcpkg](https://github.com/Microsoft/vcpkg) utility, which automates installation of 3rd party libraries, and Visual Studio can then automatically detect and use the installed libraries.
+Project depends also on the [OpenSSL](http://openssl.org) library, it was depeloped and tested with version **3.0.7**. Porting it to a never version should be smooth. Poject is preconfigured to use [vcpkg](https://github.com/Microsoft/vcpkg) utility, which automates installation of 3rd party libraries, and Visual Studio can then automatically detect and use the installed libraries.
 
 Clone the `vcpkg` repository into your project directory.
 
@@ -55,11 +55,9 @@ This is my first project where I used the *OpenSSL* library. I don't feel as a s
 
 ## Future development
 
-* Resolve TODOs in the code.
-* Improve certificate file format detection. Current way is not optimal, but for a viewer it should be ok.
-* Support viewing password-protected certificates.
 * Unicode support.
 * Language modules (yet only `english.slg` lang module is provided).
+* Add support for other certificate file types, e.g. PGP ones.
 
 ## License
 

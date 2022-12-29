@@ -171,6 +171,7 @@ BOOL WINAPI
 CPluginInterface::Release(HWND parent, BOOL force)
 {
 	CALL_STACK_MESSAGE2("CPluginInterface::Release(, %d)", force);
+	ReleaseViewer();
 	return TRUE;
 }
 

@@ -26,6 +26,7 @@
     <ClCompile Include="..\certview.cpp" />
     <ClCompile Include="..\precomp.cpp" />
     <ClCompile Include="..\certdump.cpp" />
+    <ClCompile Include="..\dialogs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\shared\auxtools.h">
@@ -69,6 +70,7 @@
     <ClInclude Include="..\precomp.h" />
     <ClInclude Include="..\certview.h" />
     <ClInclude Include="..\certdump.h" />
+    <ClInclude Include="..\dialogs.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\certview.def">

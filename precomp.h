@@ -49,6 +49,7 @@
 #include "arraylt.h"
 #include "winliblt.h"
 #include "auxtools.h"
+#include "dialogs.h"
 #include "certview.h"
 #include "certview.rh"
 #include "certview.rh2"

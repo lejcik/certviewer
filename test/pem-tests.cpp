@@ -264,6 +264,25 @@ TEST_F(PemCertificate, CMS)
 	EXPECT_TRUE(SearchContent("CMS_ContentInfo:"));
 }
 
+TEST_F(PemCertificate, PasswordProtectedKey)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pwd-protected-key.pem", *m_parser, "password"));
+	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_RSA);
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("Private-Key:"));
+}
+
+TEST_F(PemCertificate, PasswordProtectedKeyWithWrongPassword)
+{
+	EXPECT_FALSE(DumpCertificate(CERT_PATH / "pwd-protected-key.pem", *m_parser, "wrong-password"));
+}
+
+TEST_F(PemCertificate, PasswordProtectedKeyWithoutPassword)
+{
+	EXPECT_FALSE(DumpCertificate(CERT_PATH / "pwd-protected-key.pem", *m_parser));
+}
+
 TEST_F(PemCertificate, CorruptedCertificate)
 {
 	EXPECT_FALSE(DumpCertificate(CERT_PATH / "corrupted.pem", *m_parser));

@@ -14,5 +14,15 @@
 #pragma once
 
 #include <stdio.h>
+#include <functional>
 
-BOOL DumpCertificate(const char *certFile, FILE *out);
+// functor prototype for password callback handler,
+// params:
+// - char *buffer - callback stores the password into the buffer
+// - int size     - length of the buffer
+// return: password length in bytes, or -1 on error
+using PasswordCallback = std::function<int(char*, int)>;
+
+// dumps the provided certificate file into output FILE, calls password callback only
+// when the file is password protected, returns TRUE on success
+BOOL DumpCertificate(const char *certFile, FILE *out, PasswordCallback callback);

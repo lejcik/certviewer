@@ -61,11 +61,10 @@ protected:
 	const fs::path CERT_ROOT = "certificates";
 
 	void SetUp() override;
-
 	void TearDown() override;
 
 	// overrider for fs::path argument
-	BOOL DumpCertificate(fs::path in, CertParser &out);
+	BOOL DumpCertificate(fs::path in, CertParser &out, const std::string &password = {});
 
 	std::string GetObjectType() const;
 	std::string GetFormat() const;
