@@ -31,7 +31,7 @@ BOOL ErrorHandler(BIO *out)
 	return TRUE;
 }
 
-int PasswordHandler(char *buf, int size, int rwflag, void *u)
+int PasswordHandler(char *buf, int size, int /*rwflag*/, void *u)
 {
 	if (!u)
 		return -1;
