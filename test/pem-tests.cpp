@@ -167,20 +167,22 @@ TEST_F(PemCertificate, PKCS7_Certificate_SignedData)
 
 TEST_F(PemCertificate, PKCS8_Certificate_EncryptedPrivateKey)
 {
-	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pkcs8-private-key-encrypted.pem", *m_parser));
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pkcs8-private-key-encrypted.pem", *m_parser, "password"));
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_PKCS8);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContent("Algorithm:"));
+	EXPECT_TRUE(SearchContent("password protected"));
+	EXPECT_TRUE(SearchContent("Private-Key:"));
 }
 
-TEST_F(PemCertificate, PKCS8_Certificate_PrivateKey)
+TEST_F(PemCertificate, PKCS8_Certificate_EncryptedPrivateKey_WrongPassword)
 {
-	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pkcs8-private-key.pem", *m_parser));
-	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_PKCS8INF);
-	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
-	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContent("Private-Key:"));
+	EXPECT_FALSE(DumpCertificate(CERT_PATH / "pkcs8-private-key-encrypted.pem", *m_parser, "wrong-password"));
+}
+
+TEST_F(PemCertificate, PKCS8_Certificate_EncryptedPrivateKey_NoPassword)
+{
+	EXPECT_FALSE(DumpCertificate(CERT_PATH / "pkcs8-private-key-encrypted.pem", *m_parser));
 }
 
 TEST_F(PemCertificate, DH_Parameters)

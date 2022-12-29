@@ -18,6 +18,7 @@
 #include <openssl/ssl.h>
 #include <openssl/ts.h>
 #include <openssl/ocsp.h>
+#include <openssl/pkcs12.h>
 
 BOOL ErrorHandler(BIO *out)
 {
@@ -45,15 +46,10 @@ void PrintCertHeader(BIO *bio_out, const char *objtype, const char *format)
 	BIO_printf(bio_out, "Format: %s\n\n", format);
 }
 
-void PrintPKCS8(BIO *bio_out, X509_SIG *p8)
+void PrintPKCS8PrivateKey(BIO *bio_out, EVP_PKEY *pkey)
 {
-	BIO_printf(bio_out, "X509 password protected private key\n");
-
-	const X509_ALGOR *alg;
-	// const ASN1_OCTET_STRING *digest;
-	X509_SIG_get0(p8, &alg, NULL /* &digest */);
-	if (alg)
-		alg_print(bio_out, alg);
+	BIO_printf(bio_out, "NOTE: private key is password protected!\n\n");
+	EVP_PKEY_print_private(bio_out, pkey, 0, NULL);
 }
 
 void PrintSslSessionParams(BIO *bio_out, SSL_SESSION *ssl)
@@ -206,11 +202,29 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		}
 		else if (strcmp(name, PEM_STRING_PKCS8) == 0)
 		{
-			auto obj = PEM_read_bio_PKCS8(bio_in, NULL, PasswordHandler, &callback);
-			if (!obj)
-				return ErrorHandler(bio_out);
-			PrintPKCS8(bio_out, obj);
-			X509_SIG_free(obj);
+			auto p8inf = PEM_read_bio_PKCS8_PRIV_KEY_INFO(bio_in, NULL, NULL, NULL);
+			if (!p8inf)
+			{
+				// private key is encrypted, ask user for password
+				BIO_seek(bio_in, pos);
+				auto p8 = PEM_read_bio_PKCS8(bio_in, NULL, NULL, NULL);
+				if (!p8)
+					return ErrorHandler(bio_out);
+				char password[PEM_BUFSIZE] = {0};
+				auto ret = std::invoke(callback, password, sizeof(password));
+				if (ret != -1)
+					p8inf = PKCS8_decrypt(p8, password, ret);
+				X509_SIG_free(p8);
+			}
+			if (!p8inf)
+				return FALSE;
+
+			auto pkey = EVP_PKCS82PKEY(p8inf);
+			PKCS8_PRIV_KEY_INFO_free(p8inf);
+			if (!pkey)
+				return FALSE;
+			PrintPKCS8PrivateKey(bio_out, pkey);
+			EVP_PKEY_free(pkey);
 		}
 		else if (strcmp(name, PEM_STRING_DHPARAMS) == 0 ||
 				 strcmp(name, PEM_STRING_DHXPARAMS) == 0 ||
@@ -308,7 +322,7 @@ EVP_PKEY *Get_KeyParams_bio(BIO *bio_in)
 	return ret;
 }
 
-BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
+BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &callback)
 {
 	static const char FORMAT[] = "DER";
 
@@ -327,6 +341,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 
 	// print certificate info if it matches one of the supported formats:
 
+	// X509
 	BIO_seek(bio_in, pos);
 	auto x509 = d2i_X509_bio(bio_in, NULL);
 	if (x509)
@@ -338,6 +353,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		return TRUE;
 	}
 
+	// X509_CRL
 	BIO_seek(bio_in, pos);
 	auto x509crl = d2i_X509_CRL_bio(bio_in, NULL);
 	if (x509crl)
@@ -349,6 +365,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		return TRUE;
 	}
 
+	// X509_REQ
 	BIO_seek(bio_in, pos);
 	auto x509req = d2i_X509_REQ_bio(bio_in, NULL);
 	if (x509req)
@@ -360,6 +377,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		return TRUE;
 	}
 
+	// PKCS7
 	BIO_seek(bio_in, pos);
 	auto pkcs7 = d2i_PKCS7_bio(bio_in, NULL);
 	if (pkcs7)
@@ -371,6 +389,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		return TRUE;
 	}
 
+	// EVP_PKEY -> PrivateKey
 	BIO_seek(bio_in, pos);
 	const char *obj_type = " Private Key";
 	auto obj = d2i_PrivateKey_bio(bio_in, NULL);
@@ -385,6 +404,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		return TRUE;
 	}
 
+	// EVP_PKEY -> PublicKey
 	BIO_seek(bio_in, pos);
 	obj_type = " Public Key";
 	obj = d2i_PUBKEY_bio(bio_in, NULL);
@@ -399,6 +419,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		return TRUE;
 	}
 
+	// EVP_PKEY -> Parameters
 	BIO_seek(bio_in, pos);
 	obj_type = " Parameters";
 	obj = Get_KeyParams_bio(bio_in);
@@ -413,17 +434,36 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		return TRUE;
 	}
 
+	// PKCS8 -> EVP_PKEY
 	BIO_seek(bio_in, pos);
-	auto p8 = d2i_PKCS8_bio(bio_in, NULL);
-	if (p8)
+	auto p8inf = d2i_PKCS8_PRIV_KEY_INFO_bio(bio_in, NULL);
+	if (!p8inf)
 	{
+		// private key may be encrypted, ask user for password
+		BIO_seek(bio_in, pos);
+		auto p8 = d2i_PKCS8_bio(bio_in, NULL);
+		if (p8)
+		{
+			char password[PEM_BUFSIZE] = {0};
+			auto ret = std::invoke(callback, password, sizeof(password));
+			if (ret != -1)
+				p8inf = PKCS8_decrypt(p8, password, ret);
+			X509_SIG_free(p8);
+		}
+	}
+	if (p8inf)
+	{
+		auto pkey = EVP_PKCS82PKEY(p8inf);
+		PKCS8_PRIV_KEY_INFO_free(p8inf);
+		if (!pkey)
+			return FALSE;
 		PrintCertHeader(bio_out, "Encrypted Private Key", FORMAT);
-
-		PrintPKCS8(bio_out, p8);
-		X509_SIG_free(p8);
+		PrintPKCS8PrivateKey(bio_out, pkey);
+		EVP_PKEY_free(pkey);
 		return TRUE;
 	}
 
+	// SSL_SESSION
 	BIO_seek(bio_in, pos);
 	auto ssl = d2i_SSL_SESSION_bio(bio_in, NULL);
 	if (ssl)
@@ -435,6 +475,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		return TRUE;
 	}
 
+	// CMS
 	BIO_seek(bio_in, pos);
 	auto cms = d2i_CMS_bio(bio_in, NULL);
 	if (cms)
@@ -448,6 +489,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		return TRUE;
 	}
 
+	// TS_REQ
 	BIO_seek(bio_in, pos);
 	auto ts_req = d2i_TS_REQ_bio(bio_in, NULL);
 	if (ts_req)
@@ -458,6 +500,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		return TRUE;
 	}
 
+	// TS_RESP
 	BIO_seek(bio_in, pos);
 	auto ts_resp = d2i_TS_RESP_bio(bio_in, NULL);
 	if (ts_resp)
@@ -474,6 +517,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		return TRUE;
 	}
 
+	// OCSP_REQUEST
 	BIO_seek(bio_in, pos);
 	auto ocsp_req = d2i_OCSP_REQUEST_bio(bio_in, NULL);
 	if (ocsp_req)
@@ -484,6 +528,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out)
 		return TRUE;
 	}
 
+	// OCSP_RESPONSE
 	BIO_seek(bio_in, pos);
 	auto ocsp_resp = d2i_OCSP_RESPONSE_bio(bio_in, NULL);
 	if (ocsp_resp)
@@ -502,7 +547,7 @@ BOOL ParseCertificateFile(BIO *bio_in, BIO *bio_out, PasswordCallback &callback)
 	// try out to parse PEM format at first,
 	// then the binary one
 	if (ParseCertificateFileAsPEM(bio_in, bio_out, callback) ||
-		ParseCertificateFileAsDER(bio_in, bio_out))
+		ParseCertificateFileAsDER(bio_in, bio_out, callback))
 	{
 		return TRUE;
 	}
