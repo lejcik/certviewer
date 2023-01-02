@@ -17,14 +17,14 @@ Clone the `vcpkg` repository into your project directory.
 
 ```
 c:\projects> git clone https://github.com/Microsoft/vcpkg.git
+```
+
+Build and integrate the `vcpkg` utility:
+
+```
 c:\projects> cd vcpkg
-c:\projects\vcpkg> vcpkg integrate install
-```
-
-Build the `vcpkg` utility:
-
-```
 c:\projects\vcpkg> bootstrap-vcpkg.bat
+c:\projects\vcpkg> vcpkg integrate install
 ```
 
 And install the **OpenSSL** library (both x86 and x64 static libraries):
@@ -34,7 +34,7 @@ c:\projects\vcpkg> vcpkg install openssl:x86-windows-static
 c:\projects\vcpkg> vcpkg install openssl:x64-windows-static
 ```
 
-We have the development environment ready. Now you can open this project in Visual Studio, project files are in `as308sdk\salamand\plugins\certviewer\vcproj\`. Project is preconfigured for Visual Studio 2017, but it would be easy to downgrade it to older versions (some tips are [here](https://stackoverflow.com/questions/30741185/convert-downgrade-visual-studio-2015-solution-file-to-2013)). Compilation should be successful.
+We have the development environment ready. Now you can open this project in Visual Studio, project files are in `as308sdk\salamand\plugins\certviewer\vcproj\`. Project is preconfigured for Visual Studio 2022, but it would be easy to downgrade it to older versions (some tips are [here](https://stackoverflow.com/questions/30741185/convert-downgrade-visual-studio-2015-solution-file-to-2013)). Compilation should be successful.
 
 ## Debugging
 
@@ -44,7 +44,7 @@ Altap Salamander SDK contains a special version of `salamand.exe`, which should 
 
 The CertView plugin views information of the most common certificate files. List of the registered file extensions can be seen in *Configuration* dialog from *Options* menu, under path *Viewers and Editors/Viewers*.
 
-This is a viewer plugin, so select a certificate file in Salamander, press `F3` key and the viewer will show information about the certificate. If you wand to see the raw data instead, press `Shift+F3` keys.
+This is a viewer plugin, so select a certificate file in Salamander, press `F3` key and the viewer will show information about the certificate. If you want to see the raw data instead, press `Shift+F3` keys. Plugin asks user for password if the certificate file is password protected and the password length is not zero.
 
 ## Contributing
 
@@ -58,6 +58,10 @@ This is my first project where I used the *OpenSSL* library. I don't feel as a s
 * Unicode support.
 * Language modules (yet only `english.slg` lang module is provided).
 * Add support for other certificate file types, e.g. PGP ones.
+
+## Known issues
+
+* Viewing a password protected certificate file from a file find dialog may be confusing, the dialog is opened above the main window and may be hidden below the file find dialog. This issue has to be fixed in the Salamander core.
 
 ## License
 
