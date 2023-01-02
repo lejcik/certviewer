@@ -205,16 +205,23 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 			auto p8inf = PEM_read_bio_PKCS8_PRIV_KEY_INFO(bio_in, NULL, NULL, NULL);
 			if (!p8inf)
 			{
-				// private key is encrypted, ask user for password
+				// private key is encrypted
 				BIO_seek(bio_in, pos);
 				auto p8 = PEM_read_bio_PKCS8(bio_in, NULL, NULL, NULL);
 				if (!p8)
 					return ErrorHandler(bio_out);
+				// firstly try empty password
 				char password[PEM_BUFSIZE] = {0};
-				auto ret = std::invoke(callback, password, sizeof(password));
-				if (ret != -1)
-					p8inf = PKCS8_decrypt(p8, password, ret);
+				p8inf = PKCS8_decrypt(p8, password, 0);
+				if (!p8inf)
+				{
+					// need password, ask user to provide it
+					auto ret = std::invoke(callback, password, sizeof(password));
+					if (ret != -1)
+						p8inf = PKCS8_decrypt(p8, password, ret);
+				}
 				X509_SIG_free(p8);
+				OPENSSL_cleanse(password, sizeof(password));
 			}
 			if (!p8inf)
 				return FALSE;
@@ -439,16 +446,23 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	auto p8inf = d2i_PKCS8_PRIV_KEY_INFO_bio(bio_in, NULL);
 	if (!p8inf)
 	{
-		// private key may be encrypted, ask user for password
+		// private key may be encrypted
 		BIO_seek(bio_in, pos);
 		auto p8 = d2i_PKCS8_bio(bio_in, NULL);
 		if (p8)
 		{
+			// firstly try empty password
 			char password[PEM_BUFSIZE] = {0};
-			auto ret = std::invoke(callback, password, sizeof(password));
-			if (ret != -1)
-				p8inf = PKCS8_decrypt(p8, password, ret);
+			p8inf = PKCS8_decrypt(p8, password, 0);
+			if (!p8inf)
+			{
+				// need password, ask user to provide it
+				auto ret = std::invoke(callback, password, sizeof(password));
+				if (ret != -1)
+					p8inf = PKCS8_decrypt(p8, password, ret);
+			}
 			X509_SIG_free(p8);
+			OPENSSL_cleanse(password, sizeof(password));
 		}
 	}
 	if (p8inf)

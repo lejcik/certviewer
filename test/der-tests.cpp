@@ -134,6 +134,17 @@ TEST_F(DerCertificate, PKCS8_Certificate_EncryptedPrivateKey_NoPassword)
 	EXPECT_FALSE(DumpCertificate(CERT_PATH / "pkcs8-private-key-encrypted.der", *m_parser));
 }
 
+TEST_F(DerCertificate, PKCS8_Certificate_EncryptedPrivateKey_EmptyPassword)
+{
+	// don't ask user for password if certificate file uses zero length password!
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pkcs8-private-key-encrypted-empty-pwd.der", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "Encrypted Private Key");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("password protected"));
+	EXPECT_TRUE(SearchContent("Private-Key:"));
+}
+
 TEST_F(DerCertificate, DH_Parameters)
 {
 	EXPECT_TRUE(DumpCertificate(CERT_PATH / "dh-params.der", *m_parser));
