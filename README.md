@@ -1,5 +1,7 @@
 # CertViewer
 
+[![Build and test](https://github.com/lejcik/certviewer/actions/workflows/test.yml/badge.svg)](https://github.com/lejcik/certviewer/actions/workflows/test.yml)
+
 Certificate viewer is a plugin for Altap Salamander, allowing a user to view information about encrypted certificate files. Currently it supports viewing of X.509 certificates in the following formats: PEM (Base64 encoding), DER (encoded binary).
 
 The plugin is based on the [OpenSSL project](http://www.openssl.org/) and it automates `openssl` commands,
