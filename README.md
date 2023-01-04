@@ -57,13 +57,15 @@ This is my first project where I used the *OpenSSL* library. I don't feel as a s
 
 ## Future development
 
-* Unicode support.
+* Unicode support once *Salamander* will be Unicode ready.
 * Language modules (yet only `english.slg` lang module is provided).
+* Add support for a certificate consistency test, as the certificate file may be corrupted. This is a time consuming operation (may take a few seconds), so it has to be started by a user. Moreover, current *OpenSSL* check functions (`EVP_PKEY_check()` and others) doesn't allow breaking an ongoing operation, so user will not to be able to cancel it.
 * Add support for other certificate file types, e.g. PGP ones.
 
 ## Known issues
 
-* Viewing a password protected certificate file from a file find dialog may be confusing, the dialog is opened above the main window and may be hidden below the file find dialog. This issue has to be fixed in the Salamander core.
+* Viewing a password protected certificate file from a *file find dialog* may be confusing, as the *dialog* is opened above the *main window* and may be hidden below the *file find dialog*. This issue has to be fixed in the *Salamander's* core.
+* Only **ANSI characters** are accepted for a certificate password. Without Unicode support from Salamander it's not possible to enter Unicode characters into edit-box in the *password dialog*.
 
 ## License
 
