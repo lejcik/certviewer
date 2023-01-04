@@ -283,6 +283,7 @@ TEST_F(PemCertificate, PasswordProtectedKey)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_RSA);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("password protected"));
 	EXPECT_TRUE(SearchContent("Private-Key:"));
 }
 

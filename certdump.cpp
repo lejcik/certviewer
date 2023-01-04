@@ -18,7 +18,15 @@
 #include <openssl/ssl.h>
 #include <openssl/ts.h>
 #include <openssl/ocsp.h>
-#include <openssl/pkcs12.h>
+
+struct PwdHandlerData
+{
+	PasswordCallback &callback;
+	bool pwdProvided{false}; // true if password was provided by user, false otherwise
+
+	PwdHandlerData(PasswordCallback &cb) : callback{cb}
+	{}
+};
 
 BOOL ErrorHandler(BIO *out)
 {
@@ -36,8 +44,11 @@ int PasswordHandler(char *buf, int size, int /*rwflag*/, void *u)
 {
 	if (!u)
 		return -1;
-	auto callback = (PasswordCallback *) u;
-	return std::invoke(*callback, buf, size);
+	auto data = reinterpret_cast<PwdHandlerData*>(u);
+	auto ret = std::invoke(data->callback, buf, size);
+	if (ret != -1)
+		data->pwdProvided = true;
+	return ret;
 }
 
 void PrintCertHeader(BIO *bio_out, const char *objtype, const char *format)
@@ -46,9 +57,10 @@ void PrintCertHeader(BIO *bio_out, const char *objtype, const char *format)
 	BIO_printf(bio_out, "Format: %s\n\n", format);
 }
 
-void PrintPKCS8PrivateKey(BIO *bio_out, EVP_PKEY *pkey)
+void PrintPrivateKeyInfo(BIO *bio_out, EVP_PKEY *pkey, bool pwdProtected)
 {
-	BIO_printf(bio_out, "NOTE: private key is password protected!\n\n");
+	if (pwdProtected)
+		BIO_printf(bio_out, "NOTE: private key is password protected!\n\n");
 	EVP_PKEY_print_private(bio_out, pkey, 0, NULL);
 }
 
@@ -138,7 +150,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		if (strcmp(name, PEM_STRING_X509) == 0 ||
 			strcmp(name, PEM_STRING_X509_OLD) == 0)
 		{
-			auto obj = PEM_read_bio_X509(bio_in, NULL, PasswordHandler, &callback);
+			auto obj = PEM_read_bio_X509(bio_in, NULL, NULL, NULL);
 			if (!obj)
 				return ErrorHandler(bio_out);
 			X509_print(bio_out, obj);
@@ -146,7 +158,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		}
 		else if (strcmp(name, PEM_STRING_X509_TRUSTED) == 0)
 		{
-			auto obj = PEM_read_bio_X509_AUX(bio_in, NULL, PasswordHandler, &callback);
+			auto obj = PEM_read_bio_X509_AUX(bio_in, NULL, NULL, NULL);
 			if (!obj)
 				return ErrorHandler(bio_out);
 			X509_print(bio_out, obj);
@@ -155,7 +167,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		else if (strcmp(name, PEM_STRING_X509_REQ) == 0 ||
 				 strcmp(name, PEM_STRING_X509_REQ_OLD) == 0)
 		{
-			auto obj = PEM_read_bio_X509_REQ(bio_in, NULL, PasswordHandler, &callback);
+			auto obj = PEM_read_bio_X509_REQ(bio_in, NULL, NULL, NULL);
 			if (!obj)
 				return ErrorHandler(bio_out);
 			X509_REQ_print(bio_out, obj);
@@ -163,7 +175,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		}
 		else if (strcmp(name, PEM_STRING_X509_CRL) == 0)
 		{
-			auto obj = PEM_read_bio_X509_CRL(bio_in, NULL, PasswordHandler, &callback);
+			auto obj = PEM_read_bio_X509_CRL(bio_in, NULL, NULL, NULL);
 			if (!obj)
 				return ErrorHandler(bio_out);
 			X509_CRL_print(bio_out, obj);
@@ -173,9 +185,10 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 				 strcmp(name, PEM_STRING_RSA_PUBLIC) == 0 ||
 				 strcmp(name, PEM_STRING_DSA_PUBLIC) == 0)
 		{
-			auto obj = PEM_read_bio_PUBKEY(bio_in, NULL, PasswordHandler, &callback);
+			auto obj = PEM_read_bio_PUBKEY(bio_in, NULL, NULL, NULL);
 			if (!obj)
 				return ErrorHandler(bio_out);
+
 			EVP_PKEY_print_public(bio_out, obj, 0, NULL);
 			EVP_PKEY_free(obj);
 		}
@@ -185,16 +198,18 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 				 strcmp(name, PEM_STRING_PKCS8INF) == 0 ||
 				 strcmp(name, PEM_STRING_ECPRIVATEKEY) == 0)
 		{
-			auto obj = PEM_read_bio_PrivateKey(bio_in, NULL, PasswordHandler, &callback);
+			PwdHandlerData data(callback);
+			auto obj = PEM_read_bio_PrivateKey(bio_in, NULL, PasswordHandler, &data);
 			if (!obj)
 				return ErrorHandler(bio_out);
-			EVP_PKEY_print_private(bio_out, obj, 0, NULL);
+
+			PrintPrivateKeyInfo(bio_out, obj, data.pwdProvided);
 			EVP_PKEY_free(obj);
 		}
 		else if (strcmp(name, PEM_STRING_PKCS7) == 0 ||
 				 strcmp(name, PEM_STRING_PKCS7_SIGNED) == 0)
 		{
-			auto obj = PEM_read_bio_PKCS7(bio_in, NULL, PasswordHandler, &callback);
+			auto obj = PEM_read_bio_PKCS7(bio_in, NULL, NULL, NULL);
 			if (!obj)
 				return ErrorHandler(bio_out);
 			PKCS7_print_ctx(bio_out, obj, 0, NULL);
@@ -202,6 +217,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		}
 		else if (strcmp(name, PEM_STRING_PKCS8) == 0)
 		{
+			bool pwdProvided = false;
 			auto p8inf = PEM_read_bio_PKCS8_PRIV_KEY_INFO(bio_in, NULL, NULL, NULL);
 			if (!p8inf)
 			{
@@ -222,6 +238,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 				}
 				X509_SIG_free(p8);
 				OPENSSL_cleanse(password, sizeof(password));
+				pwdProvided = true;
 			}
 			if (!p8inf)
 				return FALSE;
@@ -230,7 +247,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 			PKCS8_PRIV_KEY_INFO_free(p8inf);
 			if (!pkey)
 				return FALSE;
-			PrintPKCS8PrivateKey(bio_out, pkey);
+			PrintPrivateKeyInfo(bio_out, pkey, pwdProvided);
 			EVP_PKEY_free(pkey);
 		}
 		else if (strcmp(name, PEM_STRING_DHPARAMS) == 0 ||
@@ -241,12 +258,13 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 			auto obj = PEM_read_bio_Parameters(bio_in, NULL);
 			if (!obj)
 				return ErrorHandler(bio_out);
+
 			EVP_PKEY_print_params(bio_out, obj, 0, NULL);
 			EVP_PKEY_free(obj);
 		}
 		else if (strcmp(name, PEM_STRING_SSL_SESSION) == 0)
 		{
-			auto obj = PEM_read_bio_SSL_SESSION(bio_in, NULL, PasswordHandler, &callback);
+			auto obj = PEM_read_bio_SSL_SESSION(bio_in, NULL, NULL, NULL);
 			if (!obj)
 				return ErrorHandler(bio_out);
 			PrintSslSessionParams(bio_out, obj);
@@ -264,7 +282,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 #endif
 		else if (strcmp(name, PEM_STRING_CMS) == 0)
 		{
-			auto obj = PEM_read_bio_CMS(bio_in, NULL, PasswordHandler, &callback);
+			auto obj = PEM_read_bio_CMS(bio_in, NULL, NULL, NULL);
 			if (!obj)
 				return ErrorHandler(bio_out);
 			CMS_ContentInfo_print_ctx(bio_out, obj, 0, NULL);
@@ -442,6 +460,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	}
 
 	// PKCS8 -> EVP_PKEY
+	bool pwdProvided = false;
 	BIO_seek(bio_in, pos);
 	auto p8inf = d2i_PKCS8_PRIV_KEY_INFO_bio(bio_in, NULL);
 	if (!p8inf)
@@ -463,6 +482,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 			}
 			X509_SIG_free(p8);
 			OPENSSL_cleanse(password, sizeof(password));
+			pwdProvided = true;
 		}
 	}
 	if (p8inf)
@@ -472,7 +492,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		if (!pkey)
 			return FALSE;
 		PrintCertHeader(bio_out, "Encrypted Private Key", FORMAT);
-		PrintPKCS8PrivateKey(bio_out, pkey);
+		PrintPrivateKeyInfo(bio_out, pkey, pwdProvided);
 		EVP_PKEY_free(pkey);
 		return TRUE;
 	}
