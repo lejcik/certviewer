@@ -10,7 +10,6 @@
     <ClCompile Include="..\openssl_helpers.cpp">
       <Filter>plugin</Filter>
     </ClCompile>
-    <ClCompile Include="precomp.cpp" />
     <ClCompile Include="der-tests.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -21,7 +20,6 @@
     <ClInclude Include="..\openssl_helpers.h">
       <Filter>plugin</Filter>
     </ClInclude>
-    <ClInclude Include="precomp.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="plugin">

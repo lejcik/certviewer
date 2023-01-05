@@ -11,7 +11,7 @@
 //
 //****************************************************************************
 
-#include "precomp.h"
+#include "utils.h"
 #include <openssl/pem.h>
 
 class PemCertificate :

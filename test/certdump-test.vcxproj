@@ -141,13 +141,11 @@
     <ClCompile Include="certdump-test.cpp" />
     <ClCompile Include="der-tests.cpp" />
     <ClCompile Include="pem-tests.cpp" />
-    <ClCompile Include="precomp.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\certdump.h" />
     <ClInclude Include="..\openssl_helpers.h" />
-    <ClInclude Include="precomp.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

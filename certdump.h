@@ -25,4 +25,4 @@ using PasswordCallback = std::function<int(char*, int)>;
 
 // dumps the provided certificate file into output FILE, calls password callback only
 // when the file is password protected, returns TRUE on success
-BOOL DumpCertificate(const char *certFile, FILE *out, PasswordCallback callback);
+bool DumpCertificate(const char *certFile, FILE *out, PasswordCallback callback);

@@ -11,13 +11,13 @@
 //
 //****************************************************************************
 
-#include <precomp.h>
 #include "certdump.h"
 #include "openssl_helpers.h"
 #include <openssl/decoder.h>
 #include <openssl/ssl.h>
 #include <openssl/ts.h>
 #include <openssl/ocsp.h>
+#include <string>
 
 struct PwdHandlerData
 {
@@ -28,16 +28,16 @@ struct PwdHandlerData
 	{}
 };
 
-BOOL ErrorHandler(BIO *out)
+bool ErrorHandler(BIO *out)
 {
 	auto ret = ERR_GET_REASON(ERR_peek_last_error());
 	if (ret != PEM_R_NO_START_LINE)
 	{
 		BIO_printf(out, "Failed to load certificate file\n");
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 int PasswordHandler(char *buf, int size, int /*rwflag*/, void *u)
@@ -75,7 +75,7 @@ void PrintSslSessionParams(BIO *bio_out, SSL_SESSION *ssl)
 		BIO_printf(bio_out, "  No certificate present\n");
 }
 
-BOOL ParseObjectType(BIO *bio_in, char *buf, size_t buflen)
+bool ParsePemObjectType(BIO *bio_in, char *buf, size_t buflen)
 {
 	// PEM object type data
 	char *name = NULL, *header = NULL;
@@ -108,7 +108,7 @@ BOOL ParseObjectType(BIO *bio_in, char *buf, size_t buflen)
 	return ret != 0;
 }
 
-BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &callback)
+bool ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &callback)
 {
 	char name[64];
 
@@ -121,20 +121,20 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		const auto pos = BIO_tell(bio_in);
 
 		// read PEM object header
-		if (!ParseObjectType(bio_in, name, sizeof(name)))
+		if (!ParsePemObjectType(bio_in, name, sizeof(name)))
 		{
 			const auto ret = ERR_GET_REASON(ERR_peek_last_error());
 			if (ret == PEM_R_NO_START_LINE)
 			{
 				// no PEM object read, return error
 				if (pos == 0)
-					return FALSE;
+					return false;
 
 				// end of file reached
 				break;
 			}
 
-			return FALSE;
+			return false;
 		}
 
 		// print separator between certificates
@@ -232,7 +232,7 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 				if (!p8inf)
 				{
 					// need password, ask user to provide it
-					auto ret = std::invoke(callback, password, sizeof(password));
+					auto ret = std::invoke(callback, password, static_cast<int>(sizeof(password)));
 					if (ret != -1)
 						p8inf = PKCS8_decrypt(p8, password, ret);
 				}
@@ -241,12 +241,12 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 				pwdProvided = true;
 			}
 			if (!p8inf)
-				return FALSE;
+				return false;
 
 			auto pkey = EVP_PKCS82PKEY(p8inf);
 			PKCS8_PRIV_KEY_INFO_free(p8inf);
 			if (!pkey)
-				return FALSE;
+				return false;
 			PrintPrivateKeyInfo(bio_out, pkey, pwdProvided);
 			EVP_PKEY_free(pkey);
 		}
@@ -291,12 +291,12 @@ BOOL ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		else
 		{
 			BIO_printf(bio_out, "cannot decode unsupported PEM object\n");
-			return FALSE;
+			return false;
 		}
 	}
 
 	// file parsed successfully
-	return TRUE;
+	return true;
 }
 
 EVP_PKEY *Get_KeyParams_bio(BIO *bio_in)
@@ -347,7 +347,7 @@ EVP_PKEY *Get_KeyParams_bio(BIO *bio_in)
 	return ret;
 }
 
-BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &callback)
+bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &callback)
 {
 	static const char FORMAT[] = "DER";
 
@@ -361,7 +361,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	BUF_MEM *b = NULL;
 	auto len = asn1_d2i_read_bio(bio_in, &b);
 	if (len <= 0 || !b)
-		return FALSE;
+		return false;
 	BUF_MEM_free(b);
 
 	// print certificate info if it matches one of the supported formats:
@@ -375,7 +375,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 
 		X509_print(bio_out, x509);
 		X509_free(x509);
-		return TRUE;
+		return true;
 	}
 
 	// X509_CRL
@@ -387,7 +387,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 
 		X509_CRL_print(bio_out, x509crl);
 		X509_CRL_free(x509crl);
-		return TRUE;
+		return true;
 	}
 
 	// X509_REQ
@@ -399,7 +399,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 
 		X509_REQ_print(bio_out, x509req);
 		X509_REQ_free(x509req);
-		return TRUE;
+		return true;
 	}
 
 	// PKCS7
@@ -411,7 +411,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 
 		PKCS7_print_ctx(bio_out, pkcs7, 0, NULL);
 		PKCS7_free(pkcs7);
-		return TRUE;
+		return true;
 	}
 
 	// EVP_PKEY -> PrivateKey
@@ -426,7 +426,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 
 		EVP_PKEY_print_private(bio_out, obj, 0, NULL);
 		EVP_PKEY_free(obj);
-		return TRUE;
+		return true;
 	}
 
 	// EVP_PKEY -> PublicKey
@@ -441,7 +441,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 
 		EVP_PKEY_print_public(bio_out, obj, 0, NULL);
 		EVP_PKEY_free(obj);
-		return TRUE;
+		return true;
 	}
 
 	// EVP_PKEY -> Parameters
@@ -456,7 +456,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 
 		EVP_PKEY_print_params(bio_out, obj, 0, NULL);
 		EVP_PKEY_free(obj);
-		return TRUE;
+		return true;
 	}
 
 	// PKCS8 -> EVP_PKEY
@@ -476,7 +476,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 			if (!p8inf)
 			{
 				// need password, ask user to provide it
-				auto ret = std::invoke(callback, password, sizeof(password));
+				auto ret = std::invoke(callback, password, static_cast<int>(sizeof(password)));
 				if (ret != -1)
 					p8inf = PKCS8_decrypt(p8, password, ret);
 			}
@@ -490,11 +490,11 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		auto pkey = EVP_PKCS82PKEY(p8inf);
 		PKCS8_PRIV_KEY_INFO_free(p8inf);
 		if (!pkey)
-			return FALSE;
+			return false;
 		PrintCertHeader(bio_out, "Encrypted Private Key", FORMAT);
 		PrintPrivateKeyInfo(bio_out, pkey, pwdProvided);
 		EVP_PKEY_free(pkey);
-		return TRUE;
+		return true;
 	}
 
 	// PKCS12
@@ -530,7 +530,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 			// NOTE: unlikely, MAC should be always present, even it's optional!
 			BIO_puts(bio_out, "MAC: <not present>\n");
 			BIO_puts(bio_out, "Certificate file may be corrupted!\n");
-			return TRUE;
+			return true;
 		}
 
 		// try to verify mac with empty password
@@ -540,7 +540,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 			mac_verified = true;
 		else
 		{
-			auto ret = std::invoke(callback, password, sizeof(password));
+			auto ret = std::invoke(callback, password, static_cast<int>(sizeof(password)));
 			if (ret != -1 && PKCS12_verify_mac(p12, password, -1))
 				mac_verified = true;
 		}
@@ -549,7 +549,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		dump_certs_keys_p12(bio_out, p12, password, -1, 0, NULL, NULL);
 		PKCS12_free(p12);
 		OPENSSL_cleanse(password, sizeof(password));
-		return TRUE;
+		return true;
 	}
 
 	// SSL_SESSION
@@ -561,7 +561,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 
 		PrintSslSessionParams(bio_out, ssl);
 		SSL_SESSION_free(ssl);
-		return TRUE;
+		return true;
 	}
 
 	// CMS
@@ -575,7 +575,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 
 		CMS_ContentInfo_print_ctx(bio_out, cms, 0, NULL);
 		CMS_ContentInfo_free(cms);
-		return TRUE;
+		return true;
 	}
 
 	// TS_REQ
@@ -586,7 +586,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		PrintCertHeader(bio_out, "TS Query", FORMAT);
 		TS_REQ_print_bio(bio_out, ts_req);
 		TS_REQ_free(ts_req);
-		return TRUE;
+		return true;
 	}
 
 	// TS_RESP
@@ -603,7 +603,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 			PKCS7_print_ctx(bio_out, token, 2, NULL);
 		}
 		TS_RESP_free(ts_resp);
-		return TRUE;
+		return true;
 	}
 
 	// OCSP_REQUEST
@@ -614,7 +614,7 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		PrintCertHeader(bio_out, "OCSP Request", FORMAT);
 		OCSP_REQUEST_print(bio_out, ocsp_req, 0);
 		OCSP_REQUEST_free(ocsp_req);
-		return TRUE;
+		return true;
 	}
 
 	// OCSP_RESPONSE
@@ -625,28 +625,28 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		PrintCertHeader(bio_out, "OCSP Response", FORMAT);
 		OCSP_RESPONSE_print(bio_out, ocsp_resp, 0);
 		OCSP_RESPONSE_free(ocsp_resp);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL ParseCertificateFile(BIO *bio_in, BIO *bio_out, PasswordCallback &callback)
+bool ParseCertificateFile(BIO *bio_in, BIO *bio_out, PasswordCallback &callback)
 {
 	// try out to parse PEM format at first,
 	// then the binary one
 	if (ParseCertificateFileAsPEM(bio_in, bio_out, callback) ||
 		ParseCertificateFileAsDER(bio_in, bio_out, callback))
 	{
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL DumpCertificate(const char *certFile, FILE *out, PasswordCallback callback)
+bool DumpCertificate(const char *certFile, FILE *out, PasswordCallback callback)
 {
-	BOOL ret = FALSE;
+	bool ret = false;
 	BIO *bio_in = NULL;
 	BIO *bio_out = NULL;
 

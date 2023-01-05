@@ -11,8 +11,7 @@
 //
 //****************************************************************************
 
-#include "precomp.h"
-#include <openssl/pem.h>
+#include "utils.h"
 
 class DerCertificate :
 	public TestFixureBase

@@ -11,8 +11,6 @@
 //
 //****************************************************************************
 
-#include <precomp.h>
-
 #include "openssl_helpers.h"
 
 #include <openssl/err.h>

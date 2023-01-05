@@ -11,7 +11,7 @@
 //
 //****************************************************************************
 
-#include "precomp.h"
+#include "utils.h"
 #include "../certdump.h"
 #include <fstream>
 #include <regex>
@@ -107,7 +107,7 @@ void TestFixureBase::TearDown()
 	m_parser.reset();
 }
 
-BOOL TestFixureBase::DumpCertificate(fs::path in, CertParser &out, const std::string &password)
+bool TestFixureBase::DumpCertificate(fs::path in, CertParser &out, const std::string &password)
 {
 	auto pwdHandler = [&password](char *buf, int size) -> int
 		{
@@ -121,7 +121,7 @@ BOOL TestFixureBase::DumpCertificate(fs::path in, CertParser &out, const std::st
 			return password.size();
 		};
 
-	BOOL ret = ::DumpCertificate(in.string().c_str(), out.GetFilePtr(), pwdHandler);
+	const auto ret = ::DumpCertificate(in.string().c_str(), out.GetFilePtr(), pwdHandler);
 	out.ParseFile();
 	return ret;
 }

@@ -67,7 +67,7 @@ CPluginInterfaceForViewer::ViewFile(const char *name, int left, int top, int wid
 			show_dlg = false;
 
 			CPasswordDialog dlg(SalamanderGeneral->GetMsgBoxParent(), buf, size);
-			return (dlg.Execute() == IDOK) ? strlen(buf) : -1;
+			return (dlg.Execute() == IDOK) ? static_cast<int>(strlen(buf)) : -1;
 		};
 
 		// try out to dump info of the certificate

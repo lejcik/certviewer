@@ -13,6 +13,14 @@
 
 #pragma once
 
+#include <filesystem>
+namespace fs = std::filesystem;
+
+#include <gtest/gtest.h>
+using namespace ::testing;
+
+//////////////////////////////////////////////////////////////////////////
+
 class CertParser final
 {
 public:
@@ -64,7 +72,7 @@ protected:
 	void TearDown() override;
 
 	// overrider for fs::path argument
-	BOOL DumpCertificate(fs::path in, CertParser &out, const std::string &password = {});
+	bool DumpCertificate(fs::path in, CertParser &out, const std::string &password = {});
 
 	std::string GetObjectType() const;
 	std::string GetFormat() const;
