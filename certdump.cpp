@@ -497,6 +497,61 @@ BOOL ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		return TRUE;
 	}
 
+	// PKCS12
+	BIO_seek(bio_in, pos);
+	auto p12 = d2i_PKCS12_bio(bio_in, NULL);
+	if (p12)
+	{
+		PrintCertHeader(bio_out, "PKCS#12 Encrypted Certificate", FORMAT);
+
+		if (PKCS12_mac_present(p12))
+		{
+			// code in this block is taken from apps/pkcs12.c
+			const ASN1_INTEGER *tmaciter;
+			const X509_ALGOR *macalgid;
+			const ASN1_OBJECT *macobj;
+			const ASN1_OCTET_STRING *tmac;
+			const ASN1_OCTET_STRING *tsalt;
+
+			PKCS12_get0_mac(&tmac, &macalgid, &tsalt, &tmaciter, p12);
+			/* current hash algorithms do not use parameters so extract just name,
+			   in future alg_print() may be needed */
+			X509_ALGOR_get0(&macobj, NULL, NULL, macalgid);
+			BIO_puts(bio_out, "MAC: ");
+			i2a_ASN1_OBJECT(bio_out, macobj);
+			BIO_printf(bio_out, ", Iteration %ld\n",
+					   tmaciter != NULL ? ASN1_INTEGER_get(tmaciter) : 1L);
+			BIO_printf(bio_out, "MAC length: %ld, salt length: %ld\n",
+					   tmac != NULL ? ASN1_STRING_length(tmac) : 0L,
+					   tsalt != NULL ? ASN1_STRING_length(tsalt) : 0L);
+		}
+		else
+		{
+			// NOTE: unlikely, MAC should be always present, even it's optional!
+			BIO_puts(bio_out, "MAC: <not present>\n");
+			BIO_puts(bio_out, "Certificate file may be corrupted!\n");
+			return TRUE;
+		}
+
+		// try to verify mac with empty password
+		char password[PEM_BUFSIZE] = {0};
+		bool mac_verified = false;
+		if (PKCS12_verify_mac(p12, password, -1))
+			mac_verified = true;
+		else
+		{
+			auto ret = std::invoke(callback, password, sizeof(password));
+			if (ret != -1 && PKCS12_verify_mac(p12, password, -1))
+				mac_verified = true;
+		}
+		BIO_printf(bio_out, "MAC %s\n\n", mac_verified ? "verified OK" : "verify error! Invalid password?");
+
+		dump_certs_keys_p12(bio_out, p12, password, -1, 0, NULL, NULL);
+		PKCS12_free(p12);
+		OPENSSL_cleanse(password, sizeof(password));
+		return TRUE;
+	}
+
 	// SSL_SESSION
 	BIO_seek(bio_in, pos);
 	auto ssl = d2i_SSL_SESSION_bio(bio_in, NULL);
