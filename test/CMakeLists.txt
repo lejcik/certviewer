@@ -20,8 +20,6 @@ target_include_directories(certdump-test
 target_sources(certdump-test
     PRIVATE
         certdump-test.cpp
-        precomp.h
-        precomp.cpp
         utils.h
         utils.cpp
         pem-tests.cpp
