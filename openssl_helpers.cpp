@@ -16,12 +16,6 @@
 #include <openssl/err.h>
 #include <openssl/buffer.h>
 
-// prints out a separator between certificates
-void PrintSeparator(BIO *bio_out)
-{
-    BIO_printf(bio_out, "\n\n=======================================================================\n\n");
-}
-
 // prints out formatted message for the given error code
 void PrintUnpackError(BIO *out)
 {

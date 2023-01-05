@@ -28,6 +28,11 @@ struct PwdHandlerData
 	{}
 };
 
+void PrintSeparator(BIO* bio_out)
+{
+	BIO_printf(bio_out, "\n\n=======================================================================\n\n");
+}
+
 bool ErrorHandler(BIO *out)
 {
 	auto ret = ERR_GET_REASON(ERR_peek_last_error());
@@ -544,7 +549,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 			if (ret != -1 && PKCS12_verify_mac(p12, password, -1))
 				mac_verified = true;
 		}
-		BIO_printf(bio_out, "MAC %s\n\n", mac_verified ? "verified OK" : "verify error! Invalid password?");
+		BIO_printf(bio_out, "MAC %s\n\n", mac_verified ? "verified OK" : "verify error! Invalid password.");
 
 		dump_certs_keys_p12(bio_out, p12, password, -1, 0, NULL, NULL);
 		PKCS12_free(p12);
