@@ -19,7 +19,7 @@
 // prints out a separator between certificates
 void PrintSeparator(BIO *bio_out)
 {
-	BIO_printf(bio_out, "\n\n=======================================================================\n\n");
+    BIO_printf(bio_out, "\n\n=======================================================================\n\n");
 }
 
 // prints out formatted message for the given error code
@@ -61,148 +61,148 @@ void PrintUnpackError(BIO *out)
 #define ASN1_CHUNK_INITIAL_SIZE (16 * 1024)
 int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 {
-	BUF_MEM *b;
-	unsigned char *p;
-	int i;
-	size_t want = HEADER_SIZE;
-	uint32_t eos = 0;
-	size_t off = 0;
-	size_t len = 0;
-	size_t diff;
+    BUF_MEM *b;
+    unsigned char *p;
+    int i;
+    size_t want = HEADER_SIZE;
+    uint32_t eos = 0;
+    size_t off = 0;
+    size_t len = 0;
+    size_t diff;
 
-	const unsigned char *q;
-	long slen;
-	int inf, tag, xclass;
+    const unsigned char *q;
+    long slen;
+    int inf, tag, xclass;
 
-	b = BUF_MEM_new();
-	if (b == NULL) {
-		ERR_raise(ERR_LIB_ASN1, ERR_R_MALLOC_FAILURE);
-		return -1;
-	}
+    b = BUF_MEM_new();
+    if (b == NULL) {
+        ERR_raise(ERR_LIB_ASN1, ERR_R_MALLOC_FAILURE);
+        return -1;
+    }
 
-	ERR_set_mark();
-	for (;;) {
-		diff = len - off;
-		if (want >= diff) {
-			want -= diff;
+    ERR_set_mark();
+    for (;;) {
+        diff = len - off;
+        if (want >= diff) {
+            want -= diff;
 
-			if (len + want < len || !BUF_MEM_grow_clean(b, len + want)) {
-				ERR_raise(ERR_LIB_ASN1, ERR_R_MALLOC_FAILURE);
-				goto err;
-			}
-			i = BIO_read(in, &(b->data[len]), want);
-			if (i < 0 && diff == 0) {
-				ERR_raise(ERR_LIB_ASN1, ASN1_R_NOT_ENOUGH_DATA);
-				goto err;
-			}
-			if (i > 0) {
-				if (len + i < len) {
-					ERR_raise(ERR_LIB_ASN1, ASN1_R_TOO_LONG);
-					goto err;
-				}
-				len += i;
-			}
-		}
-		/* else data already loaded */
+            if (len + want < len || !BUF_MEM_grow_clean(b, len + want)) {
+                ERR_raise(ERR_LIB_ASN1, ERR_R_MALLOC_FAILURE);
+                goto err;
+            }
+            i = BIO_read(in, &(b->data[len]), want);
+            if (i < 0 && diff == 0) {
+                ERR_raise(ERR_LIB_ASN1, ASN1_R_NOT_ENOUGH_DATA);
+                goto err;
+            }
+            if (i > 0) {
+                if (len + i < len) {
+                    ERR_raise(ERR_LIB_ASN1, ASN1_R_TOO_LONG);
+                    goto err;
+                }
+                len += i;
+            }
+        }
+        /* else data already loaded */
 
-		p = (unsigned char *)&(b->data[off]);
-		q = p;
-		diff = len - off;
-		if (diff == 0)
-			goto err;
-		inf = ASN1_get_object(&q, &slen, &tag, &xclass, diff);
-		if (inf & 0x80) {
-			unsigned long e;
+        p = (unsigned char *)&(b->data[off]);
+        q = p;
+        diff = len - off;
+        if (diff == 0)
+            goto err;
+        inf = ASN1_get_object(&q, &slen, &tag, &xclass, diff);
+        if (inf & 0x80) {
+            unsigned long e;
 
-			e = ERR_GET_REASON(ERR_peek_last_error());
-			if (e != ASN1_R_TOO_LONG)
-				goto err;
-			ERR_pop_to_mark();
-		}
-		i = q - p;            /* header length */
-		off += i;               /* end of data */
+            e = ERR_GET_REASON(ERR_peek_last_error());
+            if (e != ASN1_R_TOO_LONG)
+                goto err;
+            ERR_pop_to_mark();
+        }
+        i = q - p;            /* header length */
+        off += i;               /* end of data */
 
-		if (inf & 1) {
-			/* no data body so go round again */
-			if (eos == UINT32_MAX) {
-				ERR_raise(ERR_LIB_ASN1, ASN1_R_HEADER_TOO_LONG);
-				goto err;
-			}
-			eos++;
-			want = HEADER_SIZE;
-		} else if (eos && (slen == 0) && (tag == V_ASN1_EOC)) {
-			/* eos value, so go back and read another header */
-			eos--;
-			if (eos == 0)
-				break;
-			else
-				want = HEADER_SIZE;
-		} else {
-			/* suck in slen bytes of data */
-			want = slen;
-			if (want > (len - off)) {
-				size_t chunk_max = ASN1_CHUNK_INITIAL_SIZE;
+        if (inf & 1) {
+            /* no data body so go round again */
+            if (eos == UINT32_MAX) {
+                ERR_raise(ERR_LIB_ASN1, ASN1_R_HEADER_TOO_LONG);
+                goto err;
+            }
+            eos++;
+            want = HEADER_SIZE;
+        } else if (eos && (slen == 0) && (tag == V_ASN1_EOC)) {
+            /* eos value, so go back and read another header */
+            eos--;
+            if (eos == 0)
+                break;
+            else
+                want = HEADER_SIZE;
+        } else {
+            /* suck in slen bytes of data */
+            want = slen;
+            if (want > (len - off)) {
+                size_t chunk_max = ASN1_CHUNK_INITIAL_SIZE;
 
-				want -= (len - off);
-				if (want > INT_MAX /* BIO_read takes an int length */  ||
-					len + want < len) {
-					ERR_raise(ERR_LIB_ASN1, ASN1_R_TOO_LONG);
-					goto err;
-				}
-				while (want > 0) {
-					/*
-					 * Read content in chunks of increasing size
-					 * so we can return an error for EOF without
-					 * having to allocate the entire content length
-					 * in one go.
-					 */
-					size_t chunk = want > chunk_max ? chunk_max : want;
+                want -= (len - off);
+                if (want > INT_MAX /* BIO_read takes an int length */  ||
+                    len + want < len) {
+                    ERR_raise(ERR_LIB_ASN1, ASN1_R_TOO_LONG);
+                    goto err;
+                }
+                while (want > 0) {
+                    /*
+                     * Read content in chunks of increasing size
+                     * so we can return an error for EOF without
+                     * having to allocate the entire content length
+                     * in one go.
+                     */
+                    size_t chunk = want > chunk_max ? chunk_max : want;
 
-					if (!BUF_MEM_grow_clean(b, len + chunk)) {
-						ERR_raise(ERR_LIB_ASN1, ERR_R_MALLOC_FAILURE);
-						goto err;
-					}
-					want -= chunk;
-					while (chunk > 0) {
-						i = BIO_read(in, &(b->data[len]), chunk);
-						if (i <= 0) {
-							ERR_raise(ERR_LIB_ASN1, ASN1_R_NOT_ENOUGH_DATA);
-							goto err;
-						}
-					/*
-					 * This can't overflow because |len+want| didn't
-					 * overflow.
-					 */
-						len += i;
-						chunk -= i;
-					}
-					if (chunk_max < INT_MAX/2)
-						chunk_max *= 2;
-				}
-			}
-			if (off + slen < off) {
-				ERR_raise(ERR_LIB_ASN1, ASN1_R_TOO_LONG);
-				goto err;
-			}
-			off += slen;
-			if (eos == 0) {
-				break;
-			} else
-				want = HEADER_SIZE;
-		}
-	}
+                    if (!BUF_MEM_grow_clean(b, len + chunk)) {
+                        ERR_raise(ERR_LIB_ASN1, ERR_R_MALLOC_FAILURE);
+                        goto err;
+                    }
+                    want -= chunk;
+                    while (chunk > 0) {
+                        i = BIO_read(in, &(b->data[len]), chunk);
+                        if (i <= 0) {
+                            ERR_raise(ERR_LIB_ASN1, ASN1_R_NOT_ENOUGH_DATA);
+                            goto err;
+                        }
+                    /*
+                     * This can't overflow because |len+want| didn't
+                     * overflow.
+                     */
+                        len += i;
+                        chunk -= i;
+                    }
+                    if (chunk_max < INT_MAX/2)
+                        chunk_max *= 2;
+                }
+            }
+            if (off + slen < off) {
+                ERR_raise(ERR_LIB_ASN1, ASN1_R_TOO_LONG);
+                goto err;
+            }
+            off += slen;
+            if (eos == 0) {
+                break;
+            } else
+                want = HEADER_SIZE;
+        }
+    }
 
-	if (off > INT_MAX) {
-		ERR_raise(ERR_LIB_ASN1, ASN1_R_TOO_LONG);
-		goto err;
-	}
+    if (off > INT_MAX) {
+        ERR_raise(ERR_LIB_ASN1, ASN1_R_TOO_LONG);
+        goto err;
+    }
 
-	*pb = b;
-	return off;
+    *pb = b;
+    return off;
  err:
-	ERR_clear_last_mark();
-	BUF_MEM_free(b);
-	return -1;
+    ERR_clear_last_mark();
+    BUF_MEM_free(b);
+    return -1;
 }
 
 // functions taken from apps/pkcs12.c
@@ -243,7 +243,7 @@ int dump_certs_keys_p12(BIO *out, const PKCS12 *p12, const char *pass,
                 BIO_printf(out, "PKCS7 Data\n");
             if (!bags) {
                 BIO_printf(out, "    !! ERROR: No data present!\n");
-				BIO_printf(out, "\n");
+                BIO_printf(out, "\n");
                 continue;
             }
         } else if (bagnid == NID_pkcs7_encrypted) {
@@ -254,9 +254,9 @@ int dump_certs_keys_p12(BIO *out, const PKCS12 *p12, const char *pass,
             ERR_clear_error();
             bags = PKCS12_unpack_p7encdata(p7, pass, passlen);
             if (!bags) {
-				BIO_printf(out, "    !! ERROR: Failed to unpack data! ");
+                BIO_printf(out, "    !! ERROR: Failed to unpack data! ");
                 PrintUnpackError(out);
-				BIO_printf(out, "\n");
+                BIO_printf(out, "\n");
                 continue;
             }
         } else {
@@ -271,7 +271,7 @@ int dump_certs_keys_p12(BIO *out, const PKCS12 *p12, const char *pass,
         }
         sk_PKCS12_SAFEBAG_pop_free(bags, PKCS12_SAFEBAG_free);
         bags = NULL;
-		BIO_printf(out, "\n");
+        BIO_printf(out, "\n");
     }
     ret = 1;
 
@@ -342,9 +342,9 @@ int dump_certs_pkeys_bag(BIO *out, const PKCS12_SAFEBAG *bag,
         print_attribs(out, attrs, "Bag Attributes");
         ERR_clear_error();
         if ((p8 = PKCS12_decrypt_skey(bag, pass, passlen)) == NULL) {
-			BIO_printf(out, "    !! ERROR: Failed to decrypt Private Key! ");
+            BIO_printf(out, "    !! ERROR: Failed to decrypt Private Key! ");
             PrintUnpackError(out);
-			// return 0;
+            // return 0;
             return 1;
         }
         if ((pkey = EVP_PKCS82PKEY(p8)) == NULL) {
@@ -356,7 +356,7 @@ int dump_certs_pkeys_bag(BIO *out, const PKCS12_SAFEBAG *bag,
         print_attribs(out, PKCS8_pkey_get0_attrs(p8), "Key Attributes");
         PKCS8_PRIV_KEY_INFO_free(p8);
         // ret = PEM_write_bio_PrivateKey(out, pkey, enc, NULL, 0, NULL, pempass);
-		EVP_PKEY_print_private(out, pkey, 0, NULL);
+        EVP_PKEY_print_private(out, pkey, 0, NULL);
         EVP_PKEY_free(pkey);
         // break;
         return 1;
@@ -375,9 +375,9 @@ int dump_certs_pkeys_bag(BIO *out, const PKCS12_SAFEBAG *bag,
         if (PKCS12_SAFEBAG_get_bag_nid(bag) != NID_x509Certificate)
             return 1;
         if ((x509 = PKCS12_SAFEBAG_get1_cert(bag)) == NULL) {
-			BIO_printf(out, "    !! ERROR: Certificate not present!\n");
-			// return 0;
-			return 1;
+            BIO_printf(out, "    !! ERROR: Certificate not present!\n");
+            // return 0;
+            return 1;
         }
         // dump_cert_text(out, x509);
         // ret = PEM_write_bio_X509(out, x509);
