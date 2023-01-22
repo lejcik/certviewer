@@ -171,7 +171,7 @@ TEST_F(PemCertificate, PKCS8_Certificate_EncryptedPrivateKey)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_PKCS8);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContent("password protected"));
+	EXPECT_TRUE(IsFilePasswordProtected());
 	EXPECT_TRUE(SearchContent("Private-Key:"));
 }
 
@@ -192,7 +192,7 @@ TEST_F(PemCertificate, PKCS8_Certificate_EncryptedPrivateKey_EmptyPassword)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_PKCS8);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContent("password protected"));
+	EXPECT_TRUE(IsFilePasswordProtected());
 	EXPECT_TRUE(SearchContent("Private-Key:"));
 }
 
@@ -283,7 +283,7 @@ TEST_F(PemCertificate, PasswordProtectedKey)
 	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_RSA);
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContent("password protected"));
+	EXPECT_TRUE(IsFilePasswordProtected());
 	EXPECT_TRUE(SearchContent("Private-Key:"));
 }
 

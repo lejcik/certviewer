@@ -160,6 +160,11 @@ bool TestFixureBase::FindDecodeFailedMsg() const
 		   SearchContent("Failed to load");
 }
 
+bool TestFixureBase::IsFilePasswordProtected() const
+{
+	return SearchContent("password protected");
+}
+
 bool TestFixureBase::SearchContent(const std::string &pattern) const
 {
 	for (const auto &line : m_parser->GetContent())

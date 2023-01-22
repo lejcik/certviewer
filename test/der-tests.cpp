@@ -119,7 +119,7 @@ TEST_F(DerCertificate, PKCS8_Certificate_EncryptedPrivateKey)
 	EXPECT_STREQ(GetObjectType().c_str(), "Encrypted Private Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContent("password protected"));
+	EXPECT_TRUE(IsFilePasswordProtected());
 	EXPECT_TRUE(SearchContent("Private-Key:"));
 }
 
@@ -140,7 +140,7 @@ TEST_F(DerCertificate, PKCS8_Certificate_EncryptedPrivateKey_EmptyPassword)
 	EXPECT_STREQ(GetObjectType().c_str(), "Encrypted Private Key");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
-	EXPECT_TRUE(SearchContent("password protected"));
+	EXPECT_TRUE(IsFilePasswordProtected());
 	EXPECT_TRUE(SearchContent("Private-Key:"));
 }
 
@@ -150,6 +150,7 @@ TEST_F(DerCertificate, PKCS12_Certificate)
 	EXPECT_STREQ(GetObjectType().c_str(), "PKCS#12 Encrypted Certificate");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(IsFilePasswordProtected());
 	EXPECT_TRUE(SearchContent("PKCS7 Encrypted data"));
 	// both, public and private keys have to be present!
 	EXPECT_TRUE(SearchContent("Certificate:"));
@@ -163,6 +164,7 @@ TEST_F(DerCertificate, PKCS12_Certificate_WrongPassword)
 	EXPECT_STREQ(GetObjectType().c_str(), "PKCS#12 Encrypted Certificate");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(IsFilePasswordProtected());
 	EXPECT_TRUE(SearchContent("PKCS7 Encrypted data"));
 	// private key should not be unpacked
 	EXPECT_TRUE(SearchContent("Invalid password"));
@@ -174,6 +176,7 @@ TEST_F(DerCertificate, PKCS12_Certificate_EmptyPassword)
 	EXPECT_STREQ(GetObjectType().c_str(), "PKCS#12 Encrypted Certificate");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(IsFilePasswordProtected());
 	EXPECT_TRUE(SearchContent("PKCS7 Encrypted data"));
 	EXPECT_TRUE(SearchContent("Certificate:"));
 }
@@ -184,6 +187,7 @@ TEST_F(DerCertificate, PKCS12_Certificate_UnsupportedAlgorithm)
 	EXPECT_STREQ(GetObjectType().c_str(), "PKCS#12 Encrypted Certificate");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
 	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(IsFilePasswordProtected());
 	EXPECT_TRUE(SearchContent("PKCS7 Encrypted data"));
 	// some algorithms are not present on certain platforms
 	EXPECT_TRUE(SearchContent("Unsupported algorithm"));

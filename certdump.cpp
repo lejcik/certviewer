@@ -508,6 +508,8 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	if (p12)
 	{
 		PrintCertHeader(bio_out, "PKCS#12 Encrypted Certificate", FORMAT);
+		// this kind of file should be always password protected, even with empty password
+		BIO_printf(bio_out, "NOTE: the file is password protected!\n\n");
 
 		if (PKCS12_mac_present(p12))
 		{

@@ -77,6 +77,7 @@ protected:
 	std::string GetObjectType() const;
 	std::string GetFormat() const;
 	bool FindDecodeFailedMsg() const;
+	bool IsFilePasswordProtected() const;
 
 	// plain search
 	bool SearchContent(const std::string &pattern) const;
