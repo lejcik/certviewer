@@ -86,7 +86,8 @@ void OnAbout(HWND hParent)
 	char buf[1000];
 	_snprintf_s(buf, _TRUNCATE, 
 				"%s " VERSINFO_VERSION "\n\n"
-				VERSINFO_COPYRIGHT "\n\n"
+				VERSINFO_COPYRIGHT "\n"
+				VERSINFO_COPYRIGHT_OPENSSL "\n\n"
 				"%s",
 				LoadStr(IDS_PLUGINNAME),
 				LoadStr(IDS_PLUGIN_DESCRIPTION));

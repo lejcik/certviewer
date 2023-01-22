@@ -26,8 +26,10 @@
 
 #include "spl_vers.h" // get version + build number
 
-#define VERSINFO_COPYRIGHT   "Copyright © 2008-2021 ALTAP"
+#define VERSINFO_COPYRIGHT   "Copyright © 2008-2023 ALTAP"
 #define VERSINFO_COMPANY     "ALTAP"
+
+#define VERSINFO_COPYRIGHT_OPENSSL  "Copyright © 1998-2023 The OpenSSL Project"
 
 #define VERSINFO_DESCRIPTION "Certificate viewer plugin for Altap Salamander"
 
