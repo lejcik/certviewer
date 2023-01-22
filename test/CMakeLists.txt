@@ -13,10 +13,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(certdump-test "")
 
-target_include_directories(certdump-test
-    PRIVATE
-        ".")
-
 target_sources(certdump-test
     PRIVATE
         certdump-test.cpp
