@@ -320,7 +320,7 @@ TEST_F(PemCertificate, CertificateBundle)
 
 	// verify the certs order
 	auto expected = bundle_certs;
-	for (auto line : m_parser->GetContent())
+	for (const auto &line : m_parser->GetContent())
 	{
 		if (line.find("Object type:") == std::string::npos)
 			continue;

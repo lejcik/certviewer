@@ -23,14 +23,6 @@ CPluginInterfaceForViewer InterfaceForViewer;
 const char *PluginNameEN = "CertView";          // not translated plugin name, used before loading language module + for debug stuff
 const char *PluginNameShort = "CERTVIEW";       // plugin name (short form, no spaces)
 
-BOOL CfgSavePosition = FALSE;             // save window position/fits main window
-WINDOWPLACEMENT CfgWindowPlacement = {0}; // not valid, if CfgSavePosition != TRUE
-
-DWORD LastCfgPage = 0;   // start page (sheet) in configuration dialog
-
-const char *CONFIG_SAVEPOS = "SavePosition";
-const char *CONFIG_WNDPLACEMENT = "WindowPlacement";
-
 // ConfigVersion: 0 - no configuration read from Registry (plugin was just installed),
 //                1 - the first version of configuration
 

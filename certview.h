@@ -27,15 +27,6 @@ extern CSalamanderGUIAbstract *SalamanderGUI;
 BOOL InitViewer();
 void ReleaseViewer();
 
-// globalni data
-extern BOOL CfgSavePosition;               // ukladat pozici okna/umistit dle hlavniho okna
-extern WINDOWPLACEMENT CfgWindowPlacement; // neplatne, pokud CfgSavePosition != TRUE
-
-extern DWORD LastCfgPage;   // start page (sheet) in configuration dialog
-
-// [0, 0] - pro otevrena okna viewru: je treba podriznou historie
-#define WM_USER_CLEARHISTORY WM_APP + 3347
-
 
 char *LoadStr(int resID);
 

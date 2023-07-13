@@ -53,4 +53,5 @@
 #include "certview.h"
 #include "certview.rh"
 #include "certview.rh2"
+#include "viewer.h"
 #include "lang\lang.rh"
