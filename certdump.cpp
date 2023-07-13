@@ -537,6 +537,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 			// NOTE: unlikely, MAC should be always present, even it's optional!
 			BIO_puts(bio_out, "MAC: <not present>\n");
 			BIO_puts(bio_out, "Certificate file may be corrupted!\n");
+			PKCS12_free(p12);
 			return true;
 		}
 
@@ -554,8 +555,8 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		BIO_printf(bio_out, "MAC %s\n\n", mac_verified ? "verified OK" : "verify error! Invalid password.");
 
 		dump_certs_keys_p12(bio_out, p12, password, -1, 0, NULL, NULL);
-		PKCS12_free(p12);
 		OPENSSL_cleanse(password, sizeof(password));
+		PKCS12_free(p12);
 		return true;
 	}
 
