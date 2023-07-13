@@ -188,7 +188,7 @@ CPluginInterface::Connect(HWND parent, CSalamanderConnectAbstract *salamander)
 						  "*.tsq;*.tsr;" // timestamping authority - query and response
 						  "*.req;*.res;" // OCSP - request and response
 						  "*.p7b;*.p7s;*.p7r;*.spc;" // PKCS#7
-						  "*.p8;*.pk8"   // PKCS#8
+						  "*.p8;*.pk8;"   // PKCS#8
 						  "*.p12;*.pfx", // PKCS#12
 						  FALSE);
 }
