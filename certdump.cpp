@@ -359,9 +359,6 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	// ensure that we are at the beginning of file
 	BIO_seek(bio_in, 0);
 
-	// remember position in the stream
-	const auto pos = BIO_tell(bio_in);
-
 	// verify that file is in DER format
 	BUF_MEM *b = NULL;
 	auto len = asn1_d2i_read_bio(bio_in, &b);
@@ -372,7 +369,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	// print certificate info if it matches one of the supported formats:
 
 	// X509
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	auto x509 = d2i_X509_bio(bio_in, NULL);
 	if (x509)
 	{
@@ -384,7 +381,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	}
 
 	// X509_CRL
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	auto x509crl = d2i_X509_CRL_bio(bio_in, NULL);
 	if (x509crl)
 	{
@@ -396,7 +393,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	}
 
 	// X509_REQ
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	auto x509req = d2i_X509_REQ_bio(bio_in, NULL);
 	if (x509req)
 	{
@@ -408,7 +405,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	}
 
 	// PKCS7
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	auto pkcs7 = d2i_PKCS7_bio(bio_in, NULL);
 	if (pkcs7)
 	{
@@ -420,7 +417,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	}
 
 	// EVP_PKEY -> PrivateKey
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	const char *obj_type = " Private Key";
 	auto obj = d2i_PrivateKey_bio(bio_in, NULL);
 	if (obj)
@@ -435,7 +432,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	}
 
 	// EVP_PKEY -> PublicKey
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	obj_type = " Public Key";
 	obj = d2i_PUBKEY_bio(bio_in, NULL);
 	if (obj)
@@ -450,7 +447,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	}
 
 	// EVP_PKEY -> Parameters
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	obj_type = " Parameters";
 	obj = Get_KeyParams_bio(bio_in);
 	if (obj)
@@ -466,12 +463,12 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 
 	// PKCS8 -> EVP_PKEY
 	bool pwdProvided = false;
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	auto p8inf = d2i_PKCS8_PRIV_KEY_INFO_bio(bio_in, NULL);
 	if (!p8inf)
 	{
 		// private key may be encrypted
-		BIO_seek(bio_in, pos);
+		BIO_seek(bio_in, 0);
 		auto p8 = d2i_PKCS8_bio(bio_in, NULL);
 		if (p8)
 		{
@@ -503,7 +500,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	}
 
 	// PKCS12
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	auto p12 = d2i_PKCS12_bio(bio_in, NULL);
 	if (p12)
 	{
@@ -561,7 +558,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	}
 
 	// SSL_SESSION
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	auto ssl = d2i_SSL_SESSION_bio(bio_in, NULL);
 	if (ssl)
 	{
@@ -573,7 +570,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	}
 
 	// CMS
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	auto cms = d2i_CMS_bio(bio_in, NULL);
 	if (cms)
 	{
@@ -587,7 +584,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	}
 
 	// TS_REQ
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	auto ts_req = d2i_TS_REQ_bio(bio_in, NULL);
 	if (ts_req)
 	{
@@ -598,7 +595,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	}
 
 	// TS_RESP
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	auto ts_resp = d2i_TS_RESP_bio(bio_in, NULL);
 	if (ts_resp)
 	{
@@ -615,7 +612,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	}
 
 	// OCSP_REQUEST
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	auto ocsp_req = d2i_OCSP_REQUEST_bio(bio_in, NULL);
 	if (ocsp_req)
 	{
@@ -626,7 +623,7 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 	}
 
 	// OCSP_RESPONSE
-	BIO_seek(bio_in, pos);
+	BIO_seek(bio_in, 0);
 	auto ocsp_resp = d2i_OCSP_RESPONSE_bio(bio_in, NULL);
 	if (ocsp_resp)
 	{
