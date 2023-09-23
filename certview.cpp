@@ -178,7 +178,7 @@ CPluginInterface::Connect(HWND parent, CSalamanderConnectAbstract *salamander)
 						  "*.der;"	 // DER certificates
 						  "*.crt;*.cer;*.cert;" // common certificates, can be both PEM or DER
 						  "*.tsq;*.tsr;" // timestamping authority - query and response
-						  "*.req;*.res;" // OCSP - request and response
+						  "*.req;*.res;*.ors;" // OCSP - request and response
 						  "*.p7b;*.p7s;*.p7r;*.spc;" // PKCS#7
 						  "*.p8;*.pk8;"   // PKCS#8
 						  "*.p12;*.pfx", // PKCS#12

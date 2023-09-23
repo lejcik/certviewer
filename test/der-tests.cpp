@@ -19,6 +19,7 @@ class DerCertificate :
 protected:
 	const fs::path CERT_PATH = CERT_ROOT / "der";
 	static constexpr const char FORMAT_TYPE[] = "DER";
+	static constexpr const char FORMAT_TYPE_ENCODED[] = "DER (base64 encoded)";
 };
 
 TEST_F(DerCertificate, X509_Certificate)
@@ -253,6 +254,15 @@ TEST_F(DerCertificate, OCSP_Response)
 	EXPECT_TRUE(DumpCertificate(CERT_PATH / "ocsp-response.res", *m_parser));
 	EXPECT_STREQ(GetObjectType().c_str(), "OCSP Response");
 	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("OCSP Response Data:"));
+}
+
+TEST_F(DerCertificate, OCSP_Response_Base64Encoded)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "ocsp-response-base64.ors", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "OCSP Response");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE_ENCODED);
 	EXPECT_FALSE(FindDecodeFailedMsg());
 	EXPECT_TRUE(SearchContent("OCSP Response Data:"));
 }
