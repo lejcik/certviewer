@@ -221,7 +221,6 @@ int dump_certs_keys_p12(BIO *out, const PKCS12 *p12, const char *pass,
                         const EVP_CIPHER *enc)
 {
     STACK_OF(PKCS7) *asafes = NULL;
-    STACK_OF(PKCS12_SAFEBAG) *bags;
     int i, bagnid;
     int ret = 0;
     PKCS7 *p7;
@@ -229,6 +228,8 @@ int dump_certs_keys_p12(BIO *out, const PKCS12 *p12, const char *pass,
     if ((asafes = PKCS12_unpack_authsafes(p12)) == NULL)
         return 0;
     for (i = 0; i < sk_PKCS7_num(asafes); i++) {
+        STACK_OF(PKCS12_SAFEBAG) *bags;
+
         p7 = sk_PKCS7_value(asafes, i);
         bagnid = OBJ_obj2nid(p7->type);
         if (bagnid == NID_pkcs7_data) {
@@ -256,7 +257,7 @@ int dump_certs_keys_p12(BIO *out, const PKCS12 *p12, const char *pass,
         } else {
             continue;
         }
-        if (!bags)
+        if (bags == NULL)
             goto err;
         if (!dump_certs_pkeys_bags(out, bags, pass, passlen,
                                    options, pempass, enc)) {
@@ -498,6 +499,8 @@ static int alg_print(BIO *out, const X509_ALGOR *alg)
 void print_attribute(BIO *out, const ASN1_TYPE *av)
 {
     char *value;
+    const char *ln;
+    char objbuf[80];
 
     switch (av->type) {
     case V_ASN1_BMPSTRING:
@@ -521,6 +524,15 @@ void print_attribute(BIO *out, const ASN1_TYPE *av)
     case V_ASN1_BIT_STRING:
         hex_prin(out, av->value.bit_string->data,
                  av->value.bit_string->length);
+        BIO_printf(out, "\n");
+        break;
+
+    case V_ASN1_OBJECT:
+        ln = OBJ_nid2ln(OBJ_obj2nid(av->value.object));
+        if (!ln)
+            ln = "";
+        OBJ_obj2txt(objbuf, sizeof(objbuf), av->value.object, 1);
+        BIO_printf(out, "%s (%s)", ln, objbuf);
         BIO_printf(out, "\n");
         break;
 
