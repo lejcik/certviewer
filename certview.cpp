@@ -14,6 +14,8 @@
 #include "precomp.h"
 #include "viewer.h"
 
+#include <openssl/opensslv.h>
+
 // plugin interface instance, its methods are invoked from Salamander
 CPluginInterface PluginInterface;
 // plugin extension interface for CPluginInterface
@@ -82,6 +84,7 @@ void OnAbout(HWND hParent)
 				VERSINFO_COPYRIGHT_OPENSSL "\n\n"
 				"%s",
 				LoadStr(IDS_PLUGINNAME),
+				OPENSSL_VERSION_STR,
 				LoadStr(IDS_PLUGIN_DESCRIPTION));
 	SalamanderGeneral->SalMessageBox(hParent, buf, LoadStr(IDS_ABOUT), MB_OK | MB_ICONINFORMATION);
 }
