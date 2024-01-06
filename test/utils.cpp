@@ -107,7 +107,7 @@ void TestFixureBase::TearDown()
 	m_parser.reset();
 }
 
-bool TestFixureBase::DumpCertificate(fs::path in, CertParser &out, const std::string &password)
+bool TestFixureBase::DumpCertificate(const fs::path &in, CertParser &out, const std::string &password)
 {
 	auto pwdHandler = [&password](char *buf, int size) -> int
 		{
@@ -118,7 +118,7 @@ bool TestFixureBase::DumpCertificate(fs::path in, CertParser &out, const std::st
 #else
 			strncpy(buf, password.c_str(), size);
 #endif
-			return password.size();
+			return static_cast<int>(password.size());
 		};
 
 	const auto ret = ::DumpCertificate(in.string().c_str(), out.GetFilePtr(), pwdHandler);

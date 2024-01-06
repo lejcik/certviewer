@@ -72,7 +72,7 @@ protected:
 	void TearDown() override;
 
 	// overrider for fs::path argument
-	bool DumpCertificate(fs::path in, CertParser &out, const std::string &password = {});
+	bool DumpCertificate(const fs::path &in, CertParser &out, const std::string &password = {});
 
 	std::string GetObjectType() const;
 	std::string GetFormat() const;

@@ -24,7 +24,7 @@ struct PwdHandlerData
 	PasswordCallback &callback;
 	bool pwdProvided{false}; // true if password was provided by user, false otherwise
 
-	PwdHandlerData(PasswordCallback &cb) : callback{cb}
+	explicit PwdHandlerData(PasswordCallback &cb) : callback{cb}
 	{}
 };
 
@@ -63,7 +63,7 @@ void PrintCertHeader(BIO *bio_out, const char *objtype, const char *format)
 	BIO_printf(bio_out, "Format: %s\n\n", format);
 }
 
-void PrintPrivateKeyInfo(BIO *bio_out, EVP_PKEY *pkey, bool pwdProtected)
+void PrintPrivateKeyInfo(BIO *bio_out, const EVP_PKEY *pkey, bool pwdProtected)
 {
 	if (pwdProtected)
 		BIO_printf(bio_out, "NOTE: private key is password protected!\n\n");
