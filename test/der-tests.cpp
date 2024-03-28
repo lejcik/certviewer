@@ -167,8 +167,10 @@ TEST_F(DerCertificate, PKCS12_Certificate_WrongPassword)
 	EXPECT_FALSE(FindDecodeFailedMsg());
 	EXPECT_TRUE(IsFilePasswordProtected());
 	EXPECT_TRUE(SearchContent("PKCS7 Encrypted data"));
+	// file has corrupted MAC data
+	EXPECT_TRUE(SearchContent("MAC verify error! Invalid password."));
 	// private key should not be unpacked
-	EXPECT_TRUE(SearchContent("Invalid password"));
+	EXPECT_TRUE(SearchContent("Failed to decrypt Private Key! Invalid password."));
 }
 
 TEST_F(DerCertificate, PKCS12_Certificate_EmptyPassword)
@@ -192,6 +194,40 @@ TEST_F(DerCertificate, PKCS12_Certificate_UnsupportedAlgorithm)
 	EXPECT_TRUE(SearchContent("PKCS7 Encrypted data"));
 	// some algorithms are not present on certain platforms
 	EXPECT_TRUE(SearchContent("Unsupported algorithm"));
+}
+
+TEST_F(DerCertificate, PKCS12_Certificate_WrongDataBagsList)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pkcs12-wrong-data-bags-list.p12", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "PKCS#12 Encrypted Certificate");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	// file has corrupted MAC data
+	EXPECT_TRUE(SearchContent("MAC verify error! Corrupted data"));
+	// file has wrong data bags list
+	EXPECT_TRUE(SearchContent("Failed to unpack PKCS12 data bags!"));
+}
+
+TEST_F(DerCertificate, PKCS12_Certificate_EmptyP7DataBag)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pkcs12-empty-p7-data-bag.p12", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "PKCS#12 Encrypted Certificate");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("PKCS7 Data"));
+	// file has empty PKCS7 data bag
+	EXPECT_TRUE(SearchContent("No data present!"));
+}
+
+TEST_F(DerCertificate, PKCS12_Certificate_EmptyP7EncryptedDataBag)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pkcs12-empty-p7-encrypted-data-bag.p12", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "PKCS#12 Encrypted Certificate");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+	EXPECT_TRUE(SearchContent("PKCS7 Encrypted data"));
+	// file has empty PKCS7 encrypted data bag
+	EXPECT_TRUE(SearchContent("Failed to unpack data!"));
 }
 
 TEST_F(DerCertificate, DH_Parameters)

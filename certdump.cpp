@@ -557,15 +557,32 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		// try to verify mac with empty password
 		char password[PEM_BUFSIZE] = {0};
 		bool mac_verified = false;
+		ERR_clear_error();
 		if (PKCS12_verify_mac(p12, password, -1))
 			mac_verified = true;
+		else if (ERR_peek_last_error() == 0)
+		{
+			// password verification failed, ask user to provide it
+			auto ret = std::invoke(callback, password, static_cast<int>(sizeof(password)));
+			if (ret != -1)
+			{
+				ERR_clear_error();
+				if (PKCS12_verify_mac(p12, password, -1))
+					mac_verified = true;
+			}
+		}
+		if (mac_verified)
+			BIO_printf(bio_out, "MAC verified OK");
 		else
 		{
-			auto ret = std::invoke(callback, password, static_cast<int>(sizeof(password)));
-			if (ret != -1 && PKCS12_verify_mac(p12, password, -1))
-				mac_verified = true;
+			BIO_printf(bio_out, "MAC verify error! ");
+			const auto err = ERR_peek_last_error();
+			if (err)
+				BIO_printf(bio_out, "Corrupted data?");
+			else
+				BIO_printf(bio_out, "Invalid password.");
 		}
-		BIO_printf(bio_out, "MAC %s\n\n", mac_verified ? "verified OK" : "verify error! Invalid password.");
+		BIO_printf(bio_out, "\n\n");
 
 		dump_certs_keys_p12(bio_out, p12, password, -1, 0, NULL, NULL);
 		OPENSSL_cleanse(password, sizeof(password));

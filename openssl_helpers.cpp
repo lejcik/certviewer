@@ -27,6 +27,12 @@ void PrintUnpackError(BIO *out)
         BIO_printf(out, "Invalid password.\n");
         return;
     }
+    if (ERR_GET_LIB(err) == ERR_LIB_PKCS12 &&
+        ERR_GET_REASON(err) == PKCS12_R_DECODE_ERROR)
+    {
+        BIO_printf(out, "Decode error.\n");
+        return;
+    }
     else if (ERR_GET_REASON(err) == EVP_R_UNSUPPORTED_ALGORITHM ||
              ERR_GET_REASON(err) == ERR_R_UNSUPPORTED)
     {
@@ -35,7 +41,7 @@ void PrintUnpackError(BIO *out)
     }
 
     // print function name
-    const char *func;
+    const char *func = NULL;
     ERR_peek_error_func(&func);
     if (func)
         BIO_printf(out, "%s: ", func);
@@ -225,8 +231,18 @@ int dump_certs_keys_p12(BIO *out, const PKCS12 *p12, const char *pass,
     int ret = 0;
     PKCS7 *p7;
 
-    if ((asafes = PKCS12_unpack_authsafes(p12)) == NULL)
+    ERR_clear_error();
+    if ((asafes = PKCS12_unpack_authsafes(p12)) == NULL) {
+        BIO_printf(out, "!! ERROR: Failed to unpack PKCS12 data bags! ");
+        PrintUnpackError(out);
         return 0;
+    }
+    if (sk_PKCS7_num(asafes) == 0) {
+        BIO_printf(out, "!! WARNING: No PKCS12 data bag found!");
+        goto err;
+    }
+	BIO_printf(out, "PKCS12 data bags count: %d\n\n", sk_PKCS7_num(asafes));
+
     for (i = 0; i < sk_PKCS7_num(asafes); i++) {
         STACK_OF(PKCS12_SAFEBAG) *bags;
 
@@ -244,7 +260,11 @@ int dump_certs_keys_p12(BIO *out, const PKCS12 *p12, const char *pass,
         } else if (bagnid == NID_pkcs7_encrypted) {
             // if (options & INFO) {
                 BIO_printf(out, "PKCS7 Encrypted data: ");
-                alg_print(out, p7->d.encrypted->enc_data->algorithm);
+                if (p7->d.encrypted == NULL) {
+                    BIO_printf(out, "<no data>\n");
+                } else {
+                    alg_print(out, p7->d.encrypted->enc_data->algorithm);
+                }
             // }
             ERR_clear_error();
             bags = PKCS12_unpack_p7encdata(p7, pass, passlen);
