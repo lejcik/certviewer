@@ -66,7 +66,7 @@ std::string CertParser::make_tmpname() const
 		std::cerr << "! failed to get temp name, error: " << err << std::endl;
 #else
 	// other posix compatible OS
-	return tmpnam(buffer);
+	return tmpnam(buffer.data());
 #endif
 	return buffer;
 }
