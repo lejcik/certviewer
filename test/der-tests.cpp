@@ -184,6 +184,16 @@ TEST_F(DerCertificate, PKCS12_Certificate_EmptyPassword)
 	EXPECT_TRUE(SearchContent("Certificate:"));
 }
 
+TEST_F(DerCertificate, PKCS12_Certificate_NoMAC)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pkcs12-nomac.p12", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "PKCS#12 Encrypted Certificate");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_TRUE(FindDecodeFailedMsg());
+	// MAC is not present
+	EXPECT_TRUE(SearchContent("MAC: <not present>"));
+}
+
 TEST_F(DerCertificate, PKCS12_Certificate_UnsupportedAlgorithm)
 {
 	EXPECT_TRUE(DumpCertificate(CERT_PATH / "pkcs12-encrypted-unsupported-algorithm.p12", *m_parser));
