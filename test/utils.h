@@ -44,8 +44,8 @@ public:
 	}
 
 private:
-	std::string make_tmpname();
-	FILE *make_tmpfile();
+	std::string make_tmpname() const;
+	FILE *make_tmpfile() const;
 	void CloseFile();
 
 private:

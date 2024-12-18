@@ -54,12 +54,14 @@ void CertParser::ParseFile()
 	}
 }
 
-std::string CertParser::make_tmpname()
+std::string CertParser::make_tmpname() const
 {
-	char buffer[1024]{};
+	std::string buffer;
+	buffer.resize(1024);
+
 #ifdef _WIN32
 	// windows with CRT security extensions
-	auto err = tmpnam_s(buffer);
+	auto err = tmpnam_s(buffer.data(), buffer.length());
 	if (err)
 		std::cerr << "! failed to get temp name, error: " << err << std::endl;
 #else
@@ -69,7 +71,7 @@ std::string CertParser::make_tmpname()
 	return buffer;
 }
 
-FILE *CertParser::make_tmpfile()
+FILE *CertParser::make_tmpfile() const
 {
 	if (m_tmpname.empty())
 		return nullptr;
@@ -157,7 +159,8 @@ std::string TestFixureBase::GetFormat() const
 bool TestFixureBase::FindDecodeFailedMsg() const
 {
 	return SearchContent("unsupported PEM object") ||
-		   SearchContent("Failed to load");
+		   SearchContent("Failed to load") ||
+		   SearchContent("Certificate file may be corrupted");
 }
 
 bool TestFixureBase::IsFilePasswordProtected() const
@@ -167,23 +170,22 @@ bool TestFixureBase::IsFilePasswordProtected() const
 
 bool TestFixureBase::SearchContent(const std::string &pattern) const
 {
-	for (const auto &line : m_parser->GetContent())
-	{
-		if (line.find(pattern) != std::string::npos)
-			return true;
-	}
-	return false;
+	return std::any_of(m_parser->GetContent().begin(), m_parser->GetContent().end(),
+		[&pattern](const std::string& line)
+		{
+			return line.find(pattern) != std::string::npos;
+		});
 }
 
 bool TestFixureBase::SearchContentRE(const std::string &pattern) const
 {
 	std::regex re(pattern);
 	std::smatch matcher;
-	for (const auto& line : m_parser->GetContent())
-	{
-		std::regex_match(line, matcher, re);
-		if (matcher.size() >= 1)
-			return true;
-	}
-	return false;
+
+	return std::any_of(m_parser->GetContent().begin(), m_parser->GetContent().end(),
+		[&re, &matcher](const std::string& line)
+		{
+			std::regex_match(line, matcher, re);
+			return (matcher.size() >= 1); // at least 1 match
+		});
 }
