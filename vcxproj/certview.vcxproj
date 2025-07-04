@@ -49,11 +49,11 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform">
     </Import>
-    <Import Project="..\..\shared\vcxproj\x86.props">
+    <Import Project="..\..\shared\vcproj2019\x86.props">
     </Import>
-    <Import Project="..\..\shared\vcxproj\plugin_base.props">
+    <Import Project="..\..\shared\vcproj2019\plugin_base.props">
     </Import>
-    <Import Project="..\..\shared\vcxproj\plugin_release.props">
+    <Import Project="..\..\shared\vcproj2019\plugin_release.props">
     </Import>
     <Import Project="certview.props">
     </Import>
@@ -61,11 +61,11 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform">
     </Import>
-    <Import Project="..\..\shared\vcxproj\x86.props">
+    <Import Project="..\..\shared\vcproj2019\x86.props">
     </Import>
-    <Import Project="..\..\shared\vcxproj\plugin_base.props">
+    <Import Project="..\..\shared\vcproj2019\plugin_base.props">
     </Import>
-    <Import Project="..\..\shared\vcxproj\plugin_debug.props">
+    <Import Project="..\..\shared\vcproj2019\plugin_debug.props">
     </Import>
     <Import Project="certview.props">
     </Import>
@@ -73,11 +73,11 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform">
     </Import>
-    <Import Project="..\..\shared\vcxproj\x64.props">
+    <Import Project="..\..\shared\vcproj2019\x64.props">
     </Import>
-    <Import Project="..\..\shared\vcxproj\plugin_base.props">
+    <Import Project="..\..\shared\vcproj2019\plugin_base.props">
     </Import>
-    <Import Project="..\..\shared\vcxproj\plugin_release.props">
+    <Import Project="..\..\shared\vcproj2019\plugin_release.props">
     </Import>
     <Import Project="certview.props">
     </Import>
@@ -85,11 +85,11 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform">
     </Import>
-    <Import Project="..\..\shared\vcxproj\x64.props">
+    <Import Project="..\..\shared\vcproj2019\x64.props">
     </Import>
-    <Import Project="..\..\shared\vcxproj\plugin_base.props">
+    <Import Project="..\..\shared\vcproj2019\plugin_base.props">
     </Import>
-    <Import Project="..\..\shared\vcxproj\plugin_debug.props">
+    <Import Project="..\..\shared\vcproj2019\plugin_debug.props">
     </Import>
     <Import Project="certview.props">
     </Import>
