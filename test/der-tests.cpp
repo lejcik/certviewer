@@ -31,6 +31,14 @@ TEST_F(DerCertificate, X509_Certificate)
 	EXPECT_TRUE(SearchContentRE("^Certificate:"));
 }
 
+TEST_F(DerCertificate, X509_Certificate_ACERT)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "x509-acert.der", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), "Attribute Certificate");
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+}
+
 TEST_F(DerCertificate, RSA_Certificate_PrivateKey)
 {
 	EXPECT_TRUE(DumpCertificate(CERT_PATH / "rsa-private-key.der", *m_parser));

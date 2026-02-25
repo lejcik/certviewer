@@ -79,6 +79,14 @@ TEST_F(PemCertificate, X509_Certificate_CRL)
 	EXPECT_TRUE(SearchContentRE("^Certificate Revocation List \\(CRL\\):"));
 }
 
+TEST_F(PemCertificate, X509_Certificate_ACERT)
+{
+	EXPECT_TRUE(DumpCertificate(CERT_PATH / "x509-acert.pem", *m_parser));
+	EXPECT_STREQ(GetObjectType().c_str(), PEM_STRING_ACERT);
+	EXPECT_STREQ(GetFormat().c_str(), FORMAT_TYPE);
+	EXPECT_FALSE(FindDecodeFailedMsg());
+}
+
 // test disabled as I don't have a sample file
 TEST_F(PemCertificate, DISABLED_Certificate_AnyPrivateKey)
 {

@@ -17,6 +17,9 @@
 #include <openssl/ssl.h>
 #include <openssl/ts.h>
 #include <openssl/ocsp.h>
+extern "C" {
+#include <openssl/x509_acert.h>
+}
 #include <string>
 
 struct PwdHandlerData
@@ -208,7 +211,8 @@ bool ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 				 strcmp(name, PEM_STRING_RSA) == 0 ||
 				 strcmp(name, PEM_STRING_DSA) == 0 ||
 				 strcmp(name, PEM_STRING_PKCS8INF) == 0 ||
-				 strcmp(name, PEM_STRING_ECPRIVATEKEY) == 0)
+				 strcmp(name, PEM_STRING_ECPRIVATEKEY) == 0 ||
+				 strcmp(name, PEM_STRING_SM2PRIVATEKEY) == 0)
 		{
 			PwdHandlerData data(callback);
 			auto obj = PEM_read_bio_PrivateKey(bio_in, NULL, PasswordHandler, &data);
@@ -265,7 +269,8 @@ bool ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 		else if (strcmp(name, PEM_STRING_DHPARAMS) == 0 ||
 				 strcmp(name, PEM_STRING_DHXPARAMS) == 0 ||
 				 strcmp(name, PEM_STRING_DSAPARAMS) == 0 ||
-				 strcmp(name, PEM_STRING_ECPARAMETERS) == 0)
+				 strcmp(name, PEM_STRING_ECPARAMETERS) == 0 ||
+				 strcmp(name, PEM_STRING_SM2PARAMETERS) == 0)
 		{
 			auto obj = PEM_read_bio_Parameters(bio_in, NULL);
 			if (!obj)
@@ -299,6 +304,14 @@ bool ParseCertificateFileAsPEM(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 				return ErrorHandler(bio_out, ContinueFlag);
 			CMS_ContentInfo_print_ctx(bio_out, obj, 0, NULL);
 			CMS_ContentInfo_free(obj);
+		}
+		else if (strcmp(name, PEM_STRING_ACERT) == 0)
+		{
+			auto obj = PEM_read_bio_X509_ACERT(bio_in, NULL, NULL, NULL);
+			if (!obj)
+				return ErrorHandler(bio_out, ContinueFlag);
+			X509_ACERT_print(bio_out, obj);
+			X509_ACERT_free(obj);
 		}
 		else
 		{
@@ -614,6 +627,17 @@ bool ParseCertificateFileAsDER(BIO *bio_in, BIO *bio_out, PasswordCallback &call
 
 		CMS_ContentInfo_print_ctx(bio_out, cms, 0, NULL);
 		CMS_ContentInfo_free(cms);
+		return true;
+	}
+
+	// ACERT
+	BIO_SeekToBegin(bio_in);
+	auto acert = d2i_X509_ACERT_bio(bio_in, NULL);
+	if (acert)
+	{
+		PrintCertHeader(bio_out, "Attribute Certificate", Format());
+		X509_ACERT_print(bio_out, acert);
+		X509_ACERT_free(acert);
 		return true;
 	}
 
